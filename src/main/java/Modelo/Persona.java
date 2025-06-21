@@ -22,7 +22,7 @@ public abstract class Persona {
         this.correoElectronico = correoElectronico;
     }
 
-    // nos faltan los constructores de json
+    // nos faltan los constructores de json , una ve que JSONutil se haga
 
     // Getters y Setters
     public String getId() {
