@@ -1,17 +1,37 @@
 package Launcher;
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
-public class Main {
-    public static void main(String[] args) {
-        //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
-        // to see how IntelliJ IDEA suggests fixing it.
-        System.out.printf("Hello and welcome!");
+import Controlador.AnimalControlador;
+import Controlador.AdoptanteControlador;
+import Controlador.RescatistaControlador;
+import Controlador.VeterinarioControlador;
+import Datos.AnimalDA;
+import Datos.PersonaDA;
+import Vista.MenuPrincipalCLI;
 
-        for (int i = 1; i <= 5; i++) {
-            //TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
-            // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-            System.out.println("i = " + i);
-        }
+// Para generar IDs únicos
+import java.util.UUID;
+
+public class Inicio {
+    public static void main(String[] args) {
+        // Inicializar DAOs (Data Access Objects)
+        AnimalDA animalDA = new AnimalDA();
+        PersonaDA personaDAO = new PersonaDA();
+
+        // Inicializar Controladores, inyectando los DAs  , tengo que investigar la inyeccion
+        AnimalControlador animalControlador = new AnimalControlador(animalDA);
+        RescatistaControlador rescatistaControlador = new RescatistaControlador(personaDA); //aca estan en rojito porque no he ehcho ningun avarable de DA
+        VeterinarioControlador veterinarioControlador = new VeterinarioControlador(personaDA);
+        AdoptanteControlador adoptanteControlador = new AdoptanteControlador(animalDA); // Adoptante interactúa con animales
+
+        // Inicializar la Vista CLI
+        MenuPrincipalCLI menuPrincipal = new MenuPrincipalCLI(
+                animalControlador,  //estas partes estan rojito porque no he ehcho ningun constructor
+                rescatistaControlador,
+                veterinarioControlador,
+                adoptanteControlador
+        );
+
+        // Iniciar la aplicación
+        menuPrincipal.mostrarMenu(); //esta es la tipica pero no he hecho ningun menu
     }
 }
