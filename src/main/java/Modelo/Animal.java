@@ -2,8 +2,8 @@ package Modelo;
 
 import java.time.LocalDateTime;
 import java.util.UUID; //generar IDs únicos
-//import org.json.JSONObject; // Dependencia para JSON (mas adelante)
-//import org.json.JSONException; // para manejo de excepciones JSON (mas adelante)
+import org.json.JSONObject; // Dependencia para JSON (mas adelante)
+import org.json.JSONException; // para manejo de excepciones JSON (mas adelante)
 
 public class Animal {
     private String id; // ID único para el animal
@@ -25,8 +25,17 @@ public class Animal {
         this.fechaHoraRescate = fechaHoraRescate;
         this.edad = edad;
     }
-
-
+    //constructor para json osea que cargue , pero no hace un di como el anterior
+    public Animal(String id, String especie, String raza, String sexo, String estadoSalud, String lugarEncontrado, LocalDateTime fechaHoraRescate, int edad) {
+        this.id = id;
+        this.especie = especie;
+        this.raza = raza;
+        this.sexo = sexo;
+        this.estadoSalud = estadoSalud;
+        this.lugarEncontrado = lugarEncontrado;
+        this.fechaHoraRescate = fechaHoraRescate;
+        this.edad = edad;
+    }
 
     // Getters y Setters
     public String getId() {
@@ -101,6 +110,41 @@ public class Animal {
                 ", Lugar Encontrado: " + lugarEncontrado +
                 ", Fecha/Hora Rescate: " + fechaHoraRescate.toLocalDate() + " " + fechaHoraRescate.toLocalTime() +
                 ", Edad: " + edad + " años.";
+    }
+    //para convertir el objeto Animal a un JSONObject
+    public JSONObject toJSONObject() {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("id", id);
+            jsonObject.put("especie", especie);
+            jsonObject.put("raza", raza);
+            jsonObject.put("sexo", sexo);
+            jsonObject.put("estadoSalud", estadoSalud);
+            jsonObject.put("lugarEncontrado", lugarEncontrado);
+            jsonObject.put("fechaHoraRescate", fechaHoraRescate.toString()); // Convertir LocalDateTime a String
+            jsonObject.put("edad", edad);
+        } catch (JSONException e) {
+            System.err.println("Error al crear JSONObject de Animal: " + e.getMessage());
+        }
+        return jsonObject;
+    }
+
+    //para construir un objeto Animal desde un JSONObject
+    public static Animal fromJSONObject(JSONObject jsonObject) {
+        try {
+            String id = jsonObject.getString("id");
+            String especie = jsonObject.getString("especie");
+            String raza = jsonObject.getString("raza");
+            String sexo = jsonObject.getString("sexo");
+            String estadoSalud = jsonObject.getString("estadoSalud");
+            String lugarEncontrado = jsonObject.getString("lugarEncontrado");
+            LocalDateTime fechaHoraRescate = LocalDateTime.parse(jsonObject.getString("fechaHoraRescate")); // Convertir String a LocalDateTime
+            int edad = jsonObject.getInt("edad");
+            return new Animal(id, especie, raza, sexo, estadoSalud, lugarEncontrado, fechaHoraRescate, edad);
+        } catch (JSONException | java.time.format.DateTimeParseException e) {
+            System.err.println("Error al parsear JSONObject a Animal: " + e.getMessage());
+            return null;
+        }
     }
 
 }

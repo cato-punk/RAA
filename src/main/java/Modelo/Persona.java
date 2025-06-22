@@ -2,6 +2,7 @@ package Modelo; //clase abstracta es clase padre o Super
 
 import java.time.LocalDate;
 import java.util.UUID;
+import org.json.JSONObject;
 
 public abstract class Persona {
     private String id;
@@ -23,7 +24,15 @@ public abstract class Persona {
     }
 
     // nos faltan los constructores de json , una ve que JSONutil se haga
-
+    public Persona(String id, String nombre, LocalDate fechaNacimiento, String direccion, String numeroTelefono, String correoElectronico) {
+        this.id = id;
+        this.nombre = nombre;
+        this.fechaNacimiento = fechaNacimiento;
+        //this.sexo = sexo;
+        this.direccion = direccion;
+        this.numeroTelefono = numeroTelefono;
+        this.correoElectronico = correoElectronico;
+    }
     // Getters y Setters
     public String getId() {
         return id;
@@ -76,4 +85,5 @@ public abstract class Persona {
     public void setCorreoElectronico(String correoElectronico) {
         this.correoElectronico = correoElectronico;
     }
+    public abstract JSONObject toJSONObject();
 }
