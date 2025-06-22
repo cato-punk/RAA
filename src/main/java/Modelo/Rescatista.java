@@ -10,8 +10,8 @@ public class Rescatista extends Persona { //la dependencia
     }
 
     // constructor para cargar desde JSON
-    public Rescatista(String id, String nombre, LocalDate fechaNacimiento, String sexo, String direccion, String numeroTelefono, String correoElectronico) {
-        super(id, nombre, fechaNacimiento, sexo, direccion, numeroTelefono, correoElectronico);
+    public Rescatista(String id, String nombre, LocalDate fechaNacimiento, String direccion, String numeroTelefono, String correoElectronico) {
+        super(id, nombre, fechaNacimiento, direccion, numeroTelefono, correoElectronico);
     }
 
     @Override
@@ -42,7 +42,7 @@ public class Rescatista extends Persona { //la dependencia
         String direccion = jsonObject.getString("direccion");
         String numeroTelefono = jsonObject.getString("numeroTelefono");
         String correoElectronico = jsonObject.getString("correoElectronico");
-        return new Rescatista(id, nombre, fechaNacimiento, sexo, direccion, numeroTelefono, correoElectronico);
+        return new Rescatista(id, nombre, fechaNacimiento, direccion, numeroTelefono, correoElectronico);
     }
 
 }

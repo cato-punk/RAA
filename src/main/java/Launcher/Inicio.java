@@ -26,7 +26,7 @@ public class Inicio {
         // Inicializar la Vista CLI
         MenuPrincipalCLI menuPrincipal = new MenuPrincipalCLI(
                 animalControlador,  //estas partes estan rojito porque no he ehcho ningun constructor
-                rescatistaControlador,
+                rescatistaControlador,//weno ahora hice el de rescatista eniweis
                 veterinarioControlador,
                 adoptanteControlador
         );
