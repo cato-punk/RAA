@@ -21,22 +21,18 @@ public class GestionVeterinarioCLI {
     public void mostrarMenuPrincipal() {
         while (true) {
             System.out.println("\n--- MENÚ VETERINARIO ---");
-            System.out.println("1. Registrarse como Veterinario");
-            System.out.println("2. Iniciar sesión como Veterinario");
-            System.out.println("3. Salir");
+            System.out.println("1. Iniciar sesión como Veterinario");
+            System.out.println("2. Salir"); // borramos una opcion que se delega ahora solo para admin
             System.out.print("Ingrese su opción: ");
             String opcion = sc.nextLine();
 
             switch (opcion) {
-                case "1":
-                    registrarNuevoVeterinario();
-                    break;
-                case "2":
+                case "1": // Ahora la opción 1 es iniciar sesión
                     if (iniciarSesionVeterinario()) {
                         mostrarMenuVeterinarioLogueado(); // Menú específico tras login
                     }
                     break;
-                case "3":
+                case "2": // Ahora la opción 2 es salir
                     System.out.println("Saliendo del menú de veterinarios.");
                     return;
                 default:
@@ -45,48 +41,12 @@ public class GestionVeterinarioCLI {
         }
     }
 
+    //se elimina ya que el registro lo hace el Admin
+    /*
     private void registrarNuevoVeterinario() {
-        System.out.println("\n--- Registrar Nuevo Veterinario ---");
-        System.out.print("Nombre: ");
-        String nombre = sc.nextLine();
-
-        System.out.print("RUT (ej: 12345678-9): ");
-        String rut = sc.nextLine();
-
-        LocalDate fechaNacimiento = null;
-        while (fechaNacimiento == null) {
-            System.out.print("Fecha de Nacimiento (AAAA-MM-DD): ");
-            try {
-                fechaNacimiento = LocalDate.parse(sc.nextLine());
-            } catch (DateTimeParseException e) {
-                System.out.println("Formato de fecha incorrecto. Use AAAA-MM-DD.");
-            }
-        }
-
-        System.out.print("Dirección: ");
-        String direccion = sc.nextLine();
-
-        System.out.print("Número de Teléfono: ");
-        String numeroTelefono = sc.nextLine();
-
-        System.out.print("Correo Electrónico: ");
-        String correoElectronico = sc.nextLine();
-
-        System.out.print("Especialidad (ej: Pequeños Animales, Equinos): ");
-        String especialidad = sc.nextLine();
-
-        System.out.print("Número de Licencia: ");
-        String licencia = sc.nextLine();
-
-
-
-        if (veterinarioControlador.registrarVeterinario(nombre, rut, fechaNacimiento, direccion,
-                numeroTelefono, correoElectronico, especialidad, licencia)) {
-            System.out.println("Veterinario registrado exitosamente.");
-        } else {
-            System.out.println("Error al registrar veterinario. Posiblemente el correo ya está en uso.");
-        }
+        // ... (código de registro que se elimina) ...
     }
+    */
 
     private boolean iniciarSesionVeterinario() {
         System.out.println("\n--- Iniciar Sesión Veterinario ---");
@@ -110,7 +70,7 @@ public class GestionVeterinarioCLI {
             System.out.println("2. Buscar animal por ID");
             System.out.println("3. Actualizar estado de salud de un animal");
             System.out.println("4. Diagnosticar animal");
-            System.out.println("5. Ver mis datos");
+            System.out.println("5. Actualizar mis datos"); // ¡NUEVO! Opción para actualizar sus propios datos
             System.out.println("6. Cerrar sesión");
             System.out.print("Ingrese su opción: ");
             String opcion = sc.nextLine();
@@ -128,11 +88,8 @@ public class GestionVeterinarioCLI {
                 case "4":
                     diagnosticarAnimal();
                     break;
-                case "5":
-                    System.out.println("Funcionalidad 'Ver mis datos' en desarrollo.");
-                    if (veterinarioControlador.getVeterinarioActual() != null) {
-                        System.out.println(veterinarioControlador.getVeterinarioActual().toString());
-                    }
+                case "5": // ¡NUEVO CASO!
+                    actualizarDatosVeterinario();
                     break;
                 case "6":
                     veterinarioControlador.cerrarSesion();
@@ -194,8 +151,7 @@ public class GestionVeterinarioCLI {
         }
     }
 
-    // Opcional: un metdoo para que el Veterinario pueda actualizar sus propios datos desde el CLI
-    /*
+    //para que el Veterinario pueda actualizar sus propios datos
     private void actualizarDatosVeterinario() {
         System.out.println("\n--- Actualizar Mis Datos de Veterinario ---");
         Veterinario veterinarioExistente = veterinarioControlador.getVeterinarioActual();
@@ -207,7 +163,7 @@ public class GestionVeterinarioCLI {
         System.out.println("Deje en blanco los campos que no desea actualizar.");
         System.out.println("Datos actuales: " + veterinarioExistente.toString());
 
-        String id = veterinarioExistente.getId(); // Usar el ID del veterinario logueado
+        String id = veterinarioExistente.getId(); //el ID del veterinario logueado
 
         System.out.print("Nuevo Nombre (" + veterinarioExistente.getNombre() + "): ");
         String nombre = sc.nextLine();
@@ -257,5 +213,4 @@ public class GestionVeterinarioCLI {
             System.out.println("Error al actualizar mis datos de veterinario.");
         }
     }
-    */
 }

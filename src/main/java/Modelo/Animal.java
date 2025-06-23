@@ -1,32 +1,42 @@
 package Modelo;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.UUID; //generar IDs únicos
-import org.json.JSONObject; // Dependencia para JSON (mas adelante)
-import org.json.JSONException; // para manejo de excepciones JSON (mas adelante)
+import java.util.UUID;
 
-public class Animal {
-    private String id; // ID único para el animal
+public class Animal implements Serializable {
+
+    private String id;
     private String especie;
     private String raza;
     private String sexo;
-    private String estadoSalud;
+    private String estadoSalud; // "disponible", "adoptado", "en_proceso_adopcion", "rescatado", etc.
     private String lugarEncontrado;
     private LocalDateTime fechaHoraRescate;
-    private int edad;
+    private int edadAproximadaAnios;
+    private String diagnostico;
+    private String idRescatista;
+    private String idAdoptante; // para el ID del adoptante
 
-    public Animal(String especie, String raza, String sexo, String estadoSalud, String lugarEncontrado, LocalDateTime fechaHoraRescate, int edad) {
-        this.id = UUID.randomUUID().toString(); // Generar un ID único al crear el animal
+    public Animal(String especie, String raza, String sexo, String estadoSalud,
+                  String lugarEncontrado, LocalDateTime fechaHoraRescate,
+                  int edadAproximadaAnios, String idRescatista) {
+        this.id = UUID.randomUUID().toString();
         this.especie = especie;
         this.raza = raza;
         this.sexo = sexo;
         this.estadoSalud = estadoSalud;
         this.lugarEncontrado = lugarEncontrado;
         this.fechaHoraRescate = fechaHoraRescate;
-        this.edad = edad;
+        this.edadAproximadaAnios = edadAproximadaAnios;
+        this.diagnostico = "No diagnosticado";
+        this.idRescatista = idRescatista;
+        this.idAdoptante = null; // hasta que sea adoptado
     }
-    //constructor para json osea que cargue , pero no hace un di como el anterior
-    public Animal(String id, String especie, String raza, String sexo, String estadoSalud, String lugarEncontrado, LocalDateTime fechaHoraRescate, int edad) {
+
+    public Animal(String id, String especie, String raza, String sexo, String estadoSalud,
+                  String lugarEncontrado, LocalDateTime fechaHoraRescate,
+                  int edadAproximadaAnios, String diagnostico, String idRescatista, String idAdoptante) {
         this.id = id;
         this.especie = especie;
         this.raza = raza;
@@ -34,15 +44,19 @@ public class Animal {
         this.estadoSalud = estadoSalud;
         this.lugarEncontrado = lugarEncontrado;
         this.fechaHoraRescate = fechaHoraRescate;
-        this.edad = edad;
+        this.edadAproximadaAnios = edadAproximadaAnios;
+        this.diagnostico = diagnostico;
+        this.idRescatista = idRescatista;
+        this.idAdoptante = idAdoptante;
     }
 
-    // Getters y Setters
+    public Animal() {
+        // Constructor vacío
+    }
+
     public String getId() {
         return id;
     }
-
-    // No hay setter para ID una vez creado
 
     public String getEspecie() {
         return especie;
@@ -92,59 +106,52 @@ public class Animal {
         this.fechaHoraRescate = fechaHoraRescate;
     }
 
-    public int getEdad() {
-        return edad;
+    public int getEdadAproximadaAnios() {
+        return edadAproximadaAnios;
     }
 
-    public void setEdad(int edad) {
-        this.edad = edad;
+    public void setEdadAproximadaAnios(int edadAproximadaAnios) {
+        this.edadAproximadaAnios = edadAproximadaAnios;
+    }
+
+    public String getDiagnostico() {
+        return diagnostico;
+    }
+
+    public void setDiagnostico(String diagnostico) {
+        this.diagnostico = diagnostico;
+    }
+
+    public String getIdRescatista() {
+        return idRescatista;
+    }
+
+    public void setIdRescatista(String idRescatista) {
+        this.idRescatista = idRescatista;
+    }
+
+    public String getIdAdoptante() {
+        return idAdoptante;
+    }
+
+    public void setIdAdoptante(String idAdoptante) {
+        this.idAdoptante = idAdoptante;
     }
 
     @Override
     public String toString() {
-        return "ID: " + id +
-                ", Especie: " + especie +
-                ", Raza: " + raza +
-                ", Sexo: " + sexo +
-                ", Estado de Salud: " + estadoSalud +
-                ", Lugar Encontrado: " + lugarEncontrado +
-                ", Fecha/Hora Rescate: " + fechaHoraRescate.toLocalDate() + " " + fechaHoraRescate.toLocalTime() +
-                ", Edad: " + edad + " años.";
+        return "Animal {" +
+                "ID='" + id + '\'' +
+                ", Especie='" + especie + '\'' +
+                ", Raza='" + raza + '\'' +
+                ", Sexo='" + sexo + '\'' +
+                ", Estado Salud='" + estadoSalud + '\'' +
+                ", Lugar Encontrado='" + lugarEncontrado + '\'' +
+                ", Fecha/Hora Rescate=" + (fechaHoraRescate != null ? fechaHoraRescate.toLocalDate() + " " + fechaHoraRescate.toLocalTime() : "N/A") +
+                ", Edad Aprox.=" + edadAproximadaAnios + " años" +
+                ", Diagnostico='" + diagnostico + '\'' +
+                ", ID Rescatista='" + (idRescatista != null ? idRescatista : "N/A") + '\'' +
+                ", ID Adoptante='" + (idAdoptante != null ? idAdoptante : "N/A") + '\'' + // añadido
+                '}';
     }
-    //para convertir el objeto Animal a un JSONObject
-    public JSONObject toJSONObject() {
-        JSONObject jsonObject = new JSONObject();
-        try {
-            jsonObject.put("id", id);
-            jsonObject.put("especie", especie);
-            jsonObject.put("raza", raza);
-            jsonObject.put("sexo", sexo);
-            jsonObject.put("estadoSalud", estadoSalud);
-            jsonObject.put("lugarEncontrado", lugarEncontrado);
-            jsonObject.put("fechaHoraRescate", fechaHoraRescate.toString()); // Convertir LocalDateTime a String
-            jsonObject.put("edad", edad);
-        } catch (JSONException e) {
-            System.err.println("Error al crear JSONObject de Animal: " + e.getMessage());
-        }
-        return jsonObject;
-    }
-
-    //para construir un objeto Animal desde un JSONObject
-    public static Animal fromJSONObject(JSONObject jsonObject) {
-        try {
-            String id = jsonObject.getString("id");
-            String especie = jsonObject.getString("especie");
-            String raza = jsonObject.getString("raza");
-            String sexo = jsonObject.getString("sexo");
-            String estadoSalud = jsonObject.getString("estadoSalud");
-            String lugarEncontrado = jsonObject.getString("lugarEncontrado");
-            LocalDateTime fechaHoraRescate = LocalDateTime.parse(jsonObject.getString("fechaHoraRescate")); // Convertir String a LocalDateTime
-            int edad = jsonObject.getInt("edad");
-            return new Animal(id, especie, raza, sexo, estadoSalud, lugarEncontrado, fechaHoraRescate, edad);
-        } catch (JSONException | java.time.format.DateTimeParseException e) {
-            System.err.println("Error al parsear JSONObject a Animal: " + e.getMessage());
-            return null;
-        }
-    }
-
 }

@@ -1,10 +1,11 @@
 package Vista;
 
 import Controlador.RescatistaControlador;
-import Controlador.AnimalControlador; //pueda informar rescates
-import Modelo.Animal; // para mostrar detalles de animales rescatados
+import Controlador.AnimalControlador;
+import Modelo.Animal;
 import Modelo.Rescatista;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.Scanner;
 
@@ -12,7 +13,7 @@ public class RescateCLI {
 
     private Scanner sc;
     private RescatistaControlador rescatistaControlador;
-    private AnimalControlador animalControlador; // informar rescate
+    private AnimalControlador animalControlador;
 
     public RescateCLI(RescatistaControlador rescatistaControlador, AnimalControlador animalControlador) {
         this.sc = new Scanner(System.in);
@@ -35,7 +36,7 @@ public class RescateCLI {
                     break;
                 case "2":
                     if (iniciarSesionRescatista()) {
-                        mostrarMenuRescatistaLogueado(); // Menú específico tras login
+                        mostrarMenuRescatistaLogueado();
                     }
                     break;
                 case "3":
@@ -74,12 +75,11 @@ public class RescateCLI {
         System.out.print("Correo Electrónico: ");
         String correoElectronico = sc.nextLine();
 
-
         if (rescatistaControlador.registrarRescatista(nombre, rut, fechaNacimiento, direccion,
                 numeroTelefono, correoElectronico)) {
             System.out.println("Rescatista registrado exitosamente.");
         } else {
-            System.out.println("Error al registrar rescatista. Posiblemente el correo ya está en uso.");
+            System.out.println("Error al registrar adoptante. Posiblemente el correo ya está en uso.");
         }
     }
 
@@ -88,7 +88,7 @@ public class RescateCLI {
         System.out.print("Ingrese su correo electrónico: ");
         String correo = sc.nextLine();
 
-        if (rescatistaControlador.iniciarSesion(correo)) { // se pasa solo el correo
+        if (rescatistaControlador.iniciarSesion(correo)) {
             System.out.println("¡Bienvenido/a Rescatista " + rescatistaControlador.getRescatistaActual().getNombre() + "!");
             return true;
         } else {
@@ -119,7 +119,7 @@ public class RescateCLI {
                 case "3":
                     rescatistaControlador.cerrarSesion();
                     System.out.println("Sesión cerrada. Volviendo al menú principal de Rescatista.");
-                    return; // Salir de este menú y volver al principal de Rescatista
+                    return;
                 default:
                     System.out.println("Opción no válida. Intente nuevamente.");
             }
@@ -128,7 +128,6 @@ public class RescateCLI {
 
     private void informarNuevoRescate() {
         System.out.println("\n--- Informar Nuevo Rescate ---");
-        //que hay un rescatista logueado
         if (rescatistaControlador.getRescatistaActual() == null) {
             System.out.println("Debe iniciar sesión como rescatista para informar un rescate.");
             return;
@@ -138,11 +137,11 @@ public class RescateCLI {
         String especie = sc.nextLine();
         System.out.print("Raza del animal: ");
         String raza = sc.nextLine();
-        System.out.print("Sexo del animal (Macho/Hembra): "); //ups casi pongo femenno o masculino
+        System.out.print("Sexo del animal (Macho/Hembra): ");
         String sexo = sc.nextLine();
         int edad = -1;
         while (edad < 0) {
-            System.out.print("Edad del animal aproximada (en años): ");
+            System.out.print("Edad del animal (en años): ");
             try {
                 edad = Integer.parseInt(sc.nextLine());
             } catch (NumberFormatException e) {
@@ -154,10 +153,12 @@ public class RescateCLI {
         System.out.print("Ubicación del rescate: ");
         String ubicacion = sc.nextLine();
 
-        // El ID del rescatista logueado se obtiene del controlador
         String idRescatista = rescatistaControlador.getRescatistaActual().getId();
+        LocalDateTime fechaHoraRescate = LocalDateTime.now(); // obtener la fecha y hora actual del rescate
 
-        if (animalControlador.registrarAnimal(especie, raza, sexo, edad, estadoSalud, ubicacion, idRescatista)) {
+        // paramtros nuevos
+        if (animalControlador.registrarAnimal(especie, raza, sexo, estadoSalud, ubicacion,
+                fechaHoraRescate, edad, idRescatista)) {
             System.out.println("Rescate informado y animal registrado exitosamente.");
         } else {
             System.out.println("Error al informar el rescate o registrar el animal.");

@@ -1,8 +1,8 @@
 package Vista;
 
 import Controlador.AdoptanteControlador;
-import Modelo.Animal;
 import Modelo.Adoptante;
+import Modelo.Animal;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.List;
@@ -23,8 +23,7 @@ public class VisualizacionAdoptanteCLI {
             System.out.println("\n--- MENÚ ADOPTANTE ---");
             System.out.println("1. Registrarse como Adoptante");
             System.out.println("2. Iniciar sesión como Adoptante");
-            System.out.println("3. Ver animales disponibles para adopción"); // Puede ser visto sin login
-            System.out.println("4. Salir");
+            System.out.println("3. Salir");
             System.out.print("Ingrese su opción: ");
             String opcion = sc.nextLine();
 
@@ -34,14 +33,11 @@ public class VisualizacionAdoptanteCLI {
                     break;
                 case "2":
                     if (iniciarSesionAdoptante()) {
-                        mostrarMenuAdoptanteLogueado(); // Menu específico tras login
+                        mostrarMenuAdoptanteLogueado();
                     }
                     break;
                 case "3":
-                    mostrarAnimalesDisponibles(); // Opción pública
-                    break;
-                case "4":
-                    System.out.println("Saliendo del programa de adopción.");
+                    System.out.println("Saliendo del menú de adoptantes.");
                     return;
                 default:
                     System.out.println("Opción no válida. Por favor, intente de nuevo.");
@@ -76,14 +72,11 @@ public class VisualizacionAdoptanteCLI {
         System.out.print("Correo Electrónico: ");
         String correoElectronico = sc.nextLine();
 
-        System.out.print("Preferencias (ej: perro pequeño, gato, etc.): ");
+        System.out.print("Preferencias (ej: Perros pequeños, Gatos tranquilos): ");
         String preferencias = sc.nextLine();
 
-        System.out.print("Información de Adopción (ej: experiencia previa, tamaño de vivienda): ");
-        String informacionAdopcion = sc.nextLine();
-
         if (adoptanteControlador.registrarAdoptante(nombre, rut, fechaNacimiento, direccion,
-                numeroTelefono, correoElectronico, preferencias, informacionAdopcion)) { // Se pasa sin contraseña
+                numeroTelefono, correoElectronico, preferencias)) {
             System.out.println("Adoptante registrado exitosamente.");
         } else {
             System.out.println("Error al registrar adoptante. Posiblemente el correo ya está en uso.");
@@ -95,8 +88,8 @@ public class VisualizacionAdoptanteCLI {
         System.out.print("Ingrese su correo electrónico: ");
         String correo = sc.nextLine();
 
-        if (adoptanteControlador.iniciarSesion(correo)) { // Se pasa solo el correo
-            System.out.println("¡Bienvenido/a " + adoptanteControlador.getAdoptanteActual().getNombre() + "!");
+        if (adoptanteControlador.iniciarSesion(correo)) {
+            System.out.println("¡Bienvenido/a Adoptante " + adoptanteControlador.getAdoptanteActual().getNombre() + "!");
             return true;
         } else {
             System.out.println("Correo electrónico no encontrado o no corresponde a un Adoptante.");
@@ -108,8 +101,8 @@ public class VisualizacionAdoptanteCLI {
         while (true) {
             System.out.println("\n--- MENÚ DE ADOPTANTE LOGUEADO ---");
             System.out.println("1. Ver animales disponibles para adopción");
-            System.out.println("2. Adoptar un animal (por ID)");
-            System.out.println("3. Ver mi historial de adopciones");
+            System.out.println("2. Adoptar un animal"); // tenemos la funcionalidad
+            System.out.println("3. Ver mi historial de adopciones"); // esta igual
             System.out.println("4. Ver mis datos");
             System.out.println("5. Cerrar sesión");
             System.out.print("Ingrese su opción: ");
@@ -134,7 +127,7 @@ public class VisualizacionAdoptanteCLI {
                 case "5":
                     adoptanteControlador.cerrarSesion();
                     System.out.println("Sesión cerrada. Volviendo al menú principal de Adoptante.");
-                    return; // Salir de este menú y volver al principal de Adoptante
+                    return;
                 default:
                     System.out.println("Opción no válida. Intente nuevamente.");
             }
@@ -147,29 +140,63 @@ public class VisualizacionAdoptanteCLI {
         if (animales.isEmpty()) {
             System.out.println("No hay animales disponibles para adopción en este momento.");
         } else {
-            animales.forEach(animal -> System.out.println(animal.toString())); // Asumiendo que Animal.toString() es descriptivo
+            animales.forEach(animal -> {
+                System.out.println("--------------------");
+                System.out.println("ID: " + animal.getId());
+                System.out.println("Especie: " + animal.getEspecie());
+                System.out.println("Raza: " + animal.getRaza());
+                System.out.println("Sexo: " + animal.getSexo());
+                System.out.println("Edad: " + animal.getEdadAproximadaAnios() + " años");
+                System.out.println("Estado de Salud: " + animal.getEstadoSalud());
+                System.out.println("Lugar encontrado: " + animal.getLugarEncontrado());
+            });
+            System.out.println("--------------------");
         }
     }
 
+    // para adoptar un animal
     private void adoptarAnimal() {
-        System.out.println("\n--- Adoptar un Animal ---");
-        System.out.print("Ingrese el ID del animal que desea adoptar: ");
+        System.out.println("\n--- ADOPTAR UN ANIMAL ---");
+        // mostrar los animales disponibles
+        mostrarAnimalesDisponibles();
+
+        if (adoptanteControlador.getAdoptanteActual() == null) {
+            return; // Ya se maneja en el controlador, pero es un doble chequeo (este fue recomendaod)
+        }
+
+        System.out.print("\nIngrese el ID del animal que desea adoptar: ");
         String idAnimal = sc.nextLine();
 
-        if (adoptanteControlador.adoptarAnimal(idAnimal)) {
-            System.out.println("Solicitud de adopción enviada para el animal con ID: " + idAnimal + ". Un veterinario se pondrá en contacto.");
+        System.out.print("¿Está seguro de que desea adoptar este animal? (si/no): ");
+        String confirmacion = sc.nextLine().trim().toLowerCase();
+
+        if ("si".equals(confirmacion)) {
+            adoptanteControlador.adoptarAnimal(idAnimal);
         } else {
-            System.out.println("No se pudo procesar la solicitud de adopción. Verifique el ID del animal.");
+            System.out.println("Adopción cancelada.");
         }
     }
 
+    // para mostrar el historial de adopciones
     private void mostrarHistorialAdopciones() {
-        System.out.println("\n--- Mi Historial de Adopciones ---");
+        System.out.println("\n--- TU HISTORIAL DE ADOPCIONES ---");
         List<Animal> adopciones = adoptanteControlador.obtenerHistorialAdopciones();
+
         if (adopciones.isEmpty()) {
-            System.out.println("Aún no tienes adopciones registradas.");
+            System.out.println("Aún no has adoptado ningún animal.");
         } else {
-            adopciones.forEach(animal -> System.out.println(animal.toString()));
+            adopciones.forEach(animal -> {
+                System.out.println("--------------------");
+                System.out.println("ID: " + animal.getId());
+                System.out.println("Especie: " + animal.getEspecie());
+                System.out.println("Raza: " + animal.getRaza());
+                System.out.println("Sexo: " + animal.getSexo());
+                System.out.println("Edad: " + animal.getEdadAproximadaAnios() + " años");
+                System.out.println("Estado de Adopción: " + animal.getEstadoSalud());
+                System.out.println("Fecha de Rescate: " + (animal.getFechaHoraRescate() != null ? animal.getFechaHoraRescate().toLocalDate() : "N/A"));
+                System.out.println("Adoptado por (ID): " + (animal.getIdAdoptante() != null ? animal.getIdAdoptante() : "N/A"));
+            });
+            System.out.println("--------------------");
         }
     }
 }
