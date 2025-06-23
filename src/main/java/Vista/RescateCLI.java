@@ -2,10 +2,10 @@ package Vista;
 
 import Controlador.AnimalControlador;
 import Controlador.RescatistaControlador;
-import Modelo.Rescatista;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
-import java.util.InputMismatchException; //para scanner, es un "esto no es lo que esperaba"
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class RescateCLI {
@@ -22,7 +22,7 @@ public class RescateCLI {
     public void mostrarMenuRescate() {
         int opcion;
         do {
-            System.out.println("\n--- Módulo Rescate ---");
+            System.out.println("\n--- Módulo Rescate ---"); //eu tenemos tildes
             System.out.println("1. Registrar nuevo rescate de animal");
             System.out.println("2. Registrarme como Rescatista (si aún no lo está)");
             System.out.println("0. Volver al menú principal");
@@ -30,7 +30,7 @@ public class RescateCLI {
 
             try {
                 opcion = scanner.nextInt();
-                scanner.nextLine(); // Consumir el salto de línea
+                scanner.nextLine(); //salto
 
                 switch (opcion) {
                     case 1:
@@ -61,10 +61,10 @@ public class RescateCLI {
         System.out.print("Raza: ");
         String raza = scanner.nextLine();
 
-        System.out.print("Sexo (Macho, Hembra, Desconocido): ");
+        System.out.print("Sexo (Macho, Hembra, Desconocido): "); // sexo se mantiene en Animal
         String sexo = scanner.nextLine();
 
-        System.out.print("Estado de Salud (Saludable, Herido, Enfermo, Buscando Hogar, etc.): ");
+        System.out.print("Estado de Salud (Saludable, Herido, Enfermo, Buscando Hogar, Listo para Amar, etc.): ");
         String estadoSalud = scanner.nextLine();
 
         System.out.print("Lugar del Encuentro: ");
@@ -76,7 +76,7 @@ public class RescateCLI {
             System.out.print("Fecha y Hora del Encuentro (YYYY-MM-DD HH:MM): ");
             String fechaHoraStr = scanner.nextLine();
             try {
-                fechaHoraRescate = LocalDateTime.parse(fechaHoraStr.replace(" ", "T")); // Formato ISO 8601
+                fechaHoraRescate = LocalDateTime.parse(fechaHoraStr.replace(" ", "T"));
                 fechaValida = true;
             } catch (DateTimeParseException e) {
                 System.out.println("Formato de fecha y hora inválido. Use YYYY-MM-DD HH:MM.");
@@ -102,13 +102,16 @@ public class RescateCLI {
             }
         }
 
-        animalControlador.registrarAnimal(especie, raza, sexo, estadoSalud, lugarEncontrado, fechaHoraRescate, edad); //puse la fc de Animal
+        animalControlador.registrarAnimal(especie, raza, sexo, estadoSalud, lugarEncontrado, fechaHoraRescate, edad);
     }
 
     private void registrarNuevoRescatista() {
         System.out.println("\n--- Registro de Nuevo Rescatista ---");
         System.out.print("Nombre completo: ");
         String nombre = scanner.nextLine();
+
+        System.out.print("RUT (ej: 12345678-9): "); // Pedir el RUT
+        String rut = scanner.nextLine();
 
         LocalDate fechaNacimiento = null;
         boolean fechaValida = false;
@@ -123,6 +126,9 @@ public class RescateCLI {
             }
         }
 
+        // System.out.print("Sexo (masculino, femenino, otro): "); // eliminado de Persona
+        // String sexo = scanner.nextLine();
+
         System.out.print("Dirección completa: ");
         String direccion = scanner.nextLine();
 
@@ -132,7 +138,7 @@ public class RescateCLI {
         System.out.print("Correo Electrónico: ");
         String email = scanner.nextLine();
 
-        rescatistaControlador.registrarRescatista(nombre, fechaNacimiento, direccion, telefono, email);
+        // pasar el rut al controlador
+        rescatistaControlador.registrarRescatista(nombre, rut, fechaNacimiento, direccion, telefono, email);
     }
-
 }
