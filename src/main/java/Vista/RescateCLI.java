@@ -123,9 +123,6 @@ public class RescateCLI {
             }
         }
 
-        System.out.print("Sexo (masculino, femenino, otro): ");
-        String sexo = scanner.nextLine();
-
         System.out.print("Dirección completa: ");
         String direccion = scanner.nextLine();
 
@@ -135,7 +132,7 @@ public class RescateCLI {
         System.out.print("Correo Electrónico: ");
         String email = scanner.nextLine();
 
-        rescatistaControlador.registrarRescatista(nombre, fechaNacimiento, sexo, direccion, telefono, email);
+        rescatistaControlador.registrarRescatista(nombre, fechaNacimiento, direccion, telefono, email);
     }
 
 }
