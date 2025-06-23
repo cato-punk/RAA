@@ -46,7 +46,7 @@ public class PersonaDA {
         guardarTodasLasPersonas(personas); // guardartodo de nuevo
     }
 
-    public void actualizarPersona(Persona personaActualizada) {
+    public boolean actualizarPersona(Persona personaActualizada) {
         ArrayList<Persona> personas = cargarPersonas();
         boolean encontrada = false;
         for (int i = 0; i < personas.size(); i++) {
@@ -58,8 +58,10 @@ public class PersonaDA {
         }
         if (encontrada) {
             guardarTodasLasPersonas(personas);
+            return true; //la persona fue encontrada y actualizada exitosamente.
         } else {
             System.err.println("Persona con ID " + personaActualizada.getId() + " no encontrada para actualizar.");
+            return false; //persona no fue encontrada.
         }
     }
 

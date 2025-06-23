@@ -21,10 +21,17 @@
             <version>20240303</version>
         </dependency>
 
-        <!-- JUnit 5 -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.17.1</version> </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+            <version>2.17.1</version> </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>Add commentMore actions
+            <artifactId>junit-jupiter</artifactId>
             <version>5.9.3</version>
             <scope>test</scope>
         </dependency>

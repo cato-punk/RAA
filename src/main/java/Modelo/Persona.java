@@ -54,7 +54,7 @@ public abstract class Persona {
     public String getCorreoElectronico() { return correoElectronico; }
     public void setCorreoElectronico(String correoElectronico) { this.correoElectronico = correoElectronico; }
 
-    @Override
+
     public abstract JSONObject toJSONObject(); // sigue siendo abstracto para que las subclases añadan sus propios campos
     // Aunque rut y los demás están en Persona, cada subclase necesita implementar su toJSONObject
     // para añadir el campo "tipo" y quizás otros campos específicos si los tuvieran mas adelante
