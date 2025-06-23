@@ -3,31 +3,28 @@ package Modelo;
 import java.time.LocalDate;
 import org.json.JSONObject;
 import org.json.JSONException;
-import org.mindrot.jbcrypt.BCrypt; // importamos BCrypt con las actualizaciones de min
 
 public class Rescatista extends Persona {
 
-    private String contrasenaHash; // NUEVOOO Para almacenar la contraseña hasheada
+    // private String contrasenaHash;
 
-    // constructor principal para crear un nuevo rescatista, ahora con contraseña plana
+    // constructor principal para crear un nuevo rescatista
     public Rescatista(String nombre, String rut, LocalDate fechaNacimiento, String direccion,
-                      String numeroTelefono, String correoElectronico, String contrasenaPlana) { // ¡NUEVO! Contraseña plana
+                      String numeroTelefono, String correoElectronico) {
         super(nombre, rut, fechaNacimiento, direccion, numeroTelefono, correoElectronico);
-        this.contrasenaHash = BCrypt.hashpw(contrasenaPlana, BCrypt.gensalt());
+        // this.contrasenaHash = BCrypt.hashpw(contrasenaPlana, BCrypt.gensalt());
     }
 
-    // constructor para cargar desde JSON (incluyendo ID y contraseña hasheada)
+    // Constructor para cargar desde JSON (sin contraseña hasheada)
     public Rescatista(String id, String nombre, String rut, LocalDate fechaNacimiento, String direccion,
-                      String numeroTelefono, String correoElectronico, String contrasenaHash) { // Contraseña ya hasheada
+                      String numeroTelefono, String correoElectronico) {
         super(id, nombre, rut, fechaNacimiento, direccion, numeroTelefono, correoElectronico);
-        this.contrasenaHash = contrasenaHash; // Asignar la contraseña hasheada
+        // this.contrasenaHash = contrasenaHash; //
     }
 
 
-    // no setter público por seguridad)
-    public String getContrasenaHash() {
-        return contrasenaHash;
-    }
+    // public String getContrasenaHash() { return contrasenaHash; } //
+    // public void setContrasenaHash(String contrasenaHash) { this.contrasenaHash = contrasenaHash; }
 
     @Override
     public String toString() {
@@ -39,8 +36,8 @@ public class Rescatista extends Persona {
     public JSONObject toJSONObject() {
         JSONObject jsonObject = super.toJSONObject();
         try {
-            jsonObject.put("tipo", "rescatista"); // Para diferenciar al cargar
-            jsonObject.put("contrasenaHash", contrasenaHash); // ñadir contraseña hasheada al JSON
+            jsonObject.put("tipo", "rescatista");
+            // jsonObject.put("contrasenaHash", contrasenaHash);
         } catch (JSONException e) {
             System.err.println("Error al crear JSONObject de Rescatista: " + e.getMessage());
         }
@@ -56,11 +53,11 @@ public class Rescatista extends Persona {
             String direccion = jsonObject.getString("direccion");
             String numeroTelefono = jsonObject.getString("numeroTelefono");
             String correoElectronico = jsonObject.getString("correoElectronico");
-            String contrasenaHash = jsonObject.getString("contrasenaHash"); // obtener contraseña hasheada
+            // String contrasenaHash = jsonObject.optString("contrasenaHash", "");
 
-            // usar el constructor con ID para cargar correctamente
+            // Usar el constructor sin el parámetro de contraseña
             return new Rescatista(id, nombre, rut, fechaNacimiento, direccion,
-                    numeroTelefono, correoElectronico, contrasenaHash);
+                    numeroTelefono, correoElectronico);
         } catch (JSONException | java.time.format.DateTimeParseException e) {
             System.err.println("Error al parsear JSONObject a Rescatista: " + e.getMessage());
             return null;
