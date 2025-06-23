@@ -20,15 +20,13 @@ public class PersonaDA {
 
     // Método para leer el archivo JSON
     private JSONArray leerArchivo() {
-        try (InputStream is = getClass().getClassLoader().getResourceAsStream(NOMBRE_ARCHIVO)) {
-            if (is == null) {
-                return new JSONArray(); // Retorna array vacío si el archivo no existe
-            }
-            String contenido = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+        try {
+            // Leer directamente del archivo (no del classpath)
+            String contenido = new String(Files.readAllBytes(Paths.get(RUTA_ARCHIVO)), StandardCharsets.UTF_8);
             return new JSONArray(contenido);
         } catch (Exception e) {
             System.err.println("Error al leer el archivo: " + e.getMessage());
-            return new JSONArray();
+            return new JSONArray(); // Retorna array vacío si hay error
         }
     }
 
@@ -52,20 +50,15 @@ public class PersonaDA {
     // Ejemplo de cómo adaptar tus métodos existentes:
     public void guardarPersona(Persona persona) {
         try {
-            // 1. Cargar el archivo existente
             JSONArray personasJson = leerArchivo();
-
-            // 2. Agregar la nueva persona
             personasJson.put(persona.toJSONObject());
 
-            // 3. Guardar inmediatamente
             Files.write(
                     Paths.get(RUTA_ARCHIVO),
                     personasJson.toString(2).getBytes(StandardCharsets.UTF_8),
                     StandardOpenOption.CREATE,
                     StandardOpenOption.TRUNCATE_EXISTING
             );
-
             System.out.println("Usuario guardado inmediatamente en: " + RUTA_ARCHIVO);
         } catch (IOException e) {
             System.err.println("Error al guardar: " + e.getMessage());
@@ -110,13 +103,19 @@ public class PersonaDA {
         if (encontrada) {
             guardarArchivo(personasJson);
             System.out.println("Persona con ID " + personaActualizada.getId() + " actualizada exitosamente.");
-        } else {
-            System.out.println("Persona con ID " + personaActualizada.getId() + " no encontrada para actualizar.");
+        //} else {
+          //  System.out.println("Persona con ID " + personaActualizada.getId() + " no encontrada para actualizar.");
         }
     }
     public boolean existeCorreo(String correo) {
-        return cargarPersonas().stream()
-                .anyMatch(p -> p.getCorreoElectronico().equalsIgnoreCase(correo));
+        JSONArray personasJson = leerArchivo();
+        for (int i = 0; i < personasJson.length(); i++) {
+            JSONObject json = personasJson.getJSONObject(i);
+            if (json.getString("correoElectronico").equalsIgnoreCase(correo)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public void eliminarPersona(String id) {

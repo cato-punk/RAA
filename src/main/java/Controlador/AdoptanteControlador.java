@@ -1,3 +1,4 @@
+// AdoptanteControlador.java
 package Controlador;
 
 import Modelo.Adoptante;
@@ -5,12 +6,10 @@ import Modelo.Animal;
 import Datos.PersonaDA;
 import Datos.AnimalDA;
 import Modelo.Persona;
-import org.mindrot.jbcrypt.BCrypt;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class AdoptanteControlador {
@@ -27,31 +26,36 @@ public class AdoptanteControlador {
                                       String direccion, String telefono,
                                       String correo, String preferencias,
                                       String contrasena) {
-        // Verifica si el correo ya existe
         if (personaDA.existeCorreo(correo)) {
+            System.out.println("El correo ya está registrado");
             return false;
         }
 
-        Adoptante adoptante = new Adoptante(nombre, fechaNacimiento, direccion,
-                telefono, correo, preferencias, contrasena);
+        Adoptante nuevoAdoptante = new Adoptante(
+                nombre, fechaNacimiento, direccion,
+                telefono, correo, preferencias, contrasena
+        );
 
-        personaDA.guardarPersona(adoptante);
+        personaDA.guardarPersona(nuevoAdoptante);
+        this.adoptanteActual = nuevoAdoptante;
         return true;
     }
 
     public boolean iniciarSesion(String correo, String contrasena) {
-        List<Persona> personas = personaDA.cargarPersonas();
+        ArrayList<Persona> personas = personaDA.cargarPersonas();
+
         for (Persona persona : personas) {
-            if (persona.getCorreoElectronico().equalsIgnoreCase(correo) &&
-                    persona.getContrasena().equals(contrasena)) { // Comparación directa (sin hashing)
-                this.adoptanteActual = (Adoptante) persona;
-                return true;
+            if (persona instanceof Adoptante) {
+                Adoptante adoptante = (Adoptante) persona;
+                if (adoptante.getCorreoElectronico().equalsIgnoreCase(correo)
+                        && adoptante.getContrasena().equals(contrasena)) {
+                    this.adoptanteActual = adoptante;
+                    return true;
+                }
             }
         }
         return false;
     }
-
-
 
     public void cerrarSesion() {
         this.adoptanteActual = null;
@@ -61,19 +65,6 @@ public class AdoptanteControlador {
         return adoptanteActual;
     }
 
-    // Búsquedas
-    private Adoptante buscarAdoptantePorCorreo(String correo) {
-        for (Persona persona : personaDA.cargarPersonas()) {
-            if (persona instanceof Adoptante &&
-                    persona.getCorreoElectronico().equalsIgnoreCase(correo)) {
-                return (Adoptante) persona;
-            }
-        }
-        return null;
-    }
-
-
-    // Animales
     public List<Animal> listarAnimalesDisponibles() {
         return animalDA.cargarAnimales().stream()
                 .filter(a -> "disponible".equalsIgnoreCase(a.getEstadoSalud()))
@@ -95,20 +86,27 @@ public class AdoptanteControlador {
                 .collect(Collectors.toList());
     }
 
-    // Adopciones
     public boolean registrarAdopcion(String idAnimal) {
         if (adoptanteActual != null) {
-            adoptanteActual.agregarAdopcion(idAnimal);
+            System.out.println("Buscando animal con ID: " + idAnimal);
             Animal animal = animalDA.buscarAnimalPorId(idAnimal);
+
             if (animal != null) {
+                System.out.println("Animal encontrado: " + animal.getId());
+
+                adoptanteActual.agregarAdopcion(idAnimal);
                 animal.setEstadoSalud("adoptado");
+
                 personaDA.actualizarPersona(adoptanteActual);
                 animalDA.actualizarAnimal(animal);
                 return true;
+            } else {
+                System.out.println("Animal con ID " + idAnimal + " no encontrado.");
             }
         }
         return false;
     }
+
 
     public List<Animal> obtenerHistorialAdopciones() {
         if (adoptanteActual != null) {

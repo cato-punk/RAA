@@ -101,19 +101,19 @@ public class Animal {
                 ", Fecha/Hora Rescate: " + fechaHoraRescate.toLocalDate() + " " + fechaHoraRescate.toLocalTime() +
                 ", Edad: " + edad + " años.";
     }
-    //para convertir el objeto Animal a un JSONObject
     public JSONObject toJSONObject() {
         JSONObject json = new JSONObject();
-        json.put("id", id);
-        json.put("especie", especie);
-        json.put("raza", raza);
-        json.put("sexo", sexo);
-        json.put("estadoSalud", estadoSalud);
-        json.put("lugarEncontrado", lugarEncontrado);
-        json.put("fechaHoraRescate", fechaHoraRescate.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
-        json.put("edad", edad);
+        json.put("id", this.id);
+        json.put("especie", this.especie);
+        json.put("raza", this.raza);
+        json.put("sexo", this.sexo);
+        json.put("estadoSalud", this.estadoSalud);
+        json.put("lugarEncontrado", this.lugarEncontrado);
+        json.put("fechaHoraRescate", this.fechaHoraRescate.toString());
+        json.put("edad", this.edad);
         return json;
     }
+
 
 
     //para construir un objeto Animal desde un JSONObject

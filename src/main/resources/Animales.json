@@ -1,22 +1,22 @@
 [
   {
-    "id": "AN001",
     "especie": "Perro",
-    "raza": "Labrador",
-    "sexo": "Macho",
-    "estadoSalud": "Disponible",
     "lugarEncontrado": "Parque Central",
-    "fechaHoraRescate": "2023-05-15T14:30:00",
+    "estadoSalud": "adoptado",
+    "raza": "Labrador",
+    "fechaHoraRescate": "2023-05-15T14:30",
+    "id": "AN001",
+    "sexo": "Macho",
     "edad": 2
   },
   {
-    "id": "AN002",
     "especie": "Gato",
-    "raza": "Siames",
-    "sexo": "Hembra",
-    "estadoSalud": "En tratamiento",
     "lugarEncontrado": "Calle 10",
+    "estadoSalud": "En tratamiento",
+    "raza": "Siames",
     "fechaHoraRescate": "2023-06-20T10:15:00",
+    "id": "AN002",
+    "sexo": "Hembra",
     "edad": 1
   }
 ]

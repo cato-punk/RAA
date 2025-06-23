@@ -63,15 +63,13 @@ public class Adoptante extends Persona {
                 json.getString("numeroTelefono"),
                 json.getString("correoElectronico"),
                 json.getString("preferenciasAnimal"),
-                json.getString("contrasena") // Ahora incluye la contraseña
+                json.getString("contrasena")
         );
 
-        // Restaurar historial de adopciones
         JSONArray historialJson = json.getJSONArray("historialAdopciones");
         for (int i = 0; i < historialJson.length(); i++) {
             adoptante.agregarAdopcion(historialJson.getString(i));
         }
-
         return adoptante;
     }
 }

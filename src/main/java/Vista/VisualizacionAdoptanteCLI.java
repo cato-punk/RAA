@@ -88,20 +88,24 @@ public class VisualizacionAdoptanteCLI {
         System.out.print("Contraseña: ");
         String contrasena = scanner.nextLine(); // Contraseña en texto plano
 
-        // Envía los datos al controlador (sin hashing)
-        if (adoptanteControlador.registrarAdoptante(nombre, fechaNacimiento, direccion,
-                telefono, correo, preferencias, contrasena)) {
-            System.out.println("¡Registro exitoso! Ahora puede iniciar sesión.");
-            boolean loginExitoso = adoptanteControlador.iniciarSesion(correo, contrasena);
-            if (loginExitoso) {
-                mostrarMenuUsuario(); // Mostrar el menú de usuario directamente
-            } else {
-                System.out.println("Error al iniciar sesión automáticamente");
-                mostrarMenuPrincipal(); // Volver al menú principal
+        try {
+            boolean registroExitoso = adoptanteControlador.registrarAdoptante(
+                    nombre, fechaNacimiento, direccion,
+                    telefono, correo, preferencias, contrasena
+            );
+
+            if (registroExitoso) {
+                System.out.println("¡Registro exitoso! Redirigiendo...");
+                // Auto-login
+                if (adoptanteControlador.iniciarSesion(correo, contrasena)) {
+                    mostrarMenuUsuario(); // Entrar directamente al menú
+                } else {
+                    System.out.println("Error en auto-login. Intente iniciar sesión manualmente.");
+                    mostrarMenuPrincipal();
+                }
             }
-        } else {
-            System.out.println("Error: El correo ya está registrado.");
-            mostrarMenuPrincipal();
+        } catch (Exception e) {
+            System.err.println("Error durante el registro: " + e.getMessage());
         }
     }
 
