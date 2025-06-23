@@ -3,32 +3,31 @@ package Modelo;
 import java.time.LocalDate;
 import org.json.JSONObject;
 import org.json.JSONException;
-import org.mindrot.jbcrypt.BCrypt; // Importar BCrypt
 
 public class Veterinario extends Persona {
 
     private String especialidad;
     private String licencia;
-    private String contrasenaHash; // para almacenar la contraseña hasheada
+    // private String contrasenaHash; //
 
-    // constructor principal para crear un nuevo veterinario, ahora con contraseña plana
+    // Constructor principal
     public Veterinario(String nombre, String rut, LocalDate fechaNacimiento, String direccion,
                        String numeroTelefono, String correoElectronico,
-                       String especialidad, String licencia, String contrasenaPlana) { //Contraseña plana
+                       String especialidad, String licencia) { //
         super(nombre, rut, fechaNacimiento, direccion, numeroTelefono, correoElectronico);
         this.especialidad = especialidad;
         this.licencia = licencia;
-        this.contrasenaHash = BCrypt.hashpw(contrasenaPlana, BCrypt.gensalt()); // Hashing de la contraseña
+        // this.contrasenaHash = BCrypt.hashpw(contrasenaPlana, BCrypt.gensalt());
     }
 
-    // constructor incluyendo ID y contraseña hasheada
+    //cargar desde JSON (sin contraseña hasheada)
     public Veterinario(String id, String nombre, String rut, LocalDate fechaNacimiento, String direccion,
                        String numeroTelefono, String correoElectronico,
-                       String especialidad, String licencia, String contrasenaHash) { //  ya hasheada la contraseña
+                       String especialidad, String licencia) { // ¡SIN PARÁMETRO DE CONTRASEÑA!
         super(id, nombre, rut, fechaNacimiento, direccion, numeroTelefono, correoElectronico);
         this.especialidad = especialidad;
         this.licencia = licencia;
-        this.contrasenaHash = contrasenaHash; // asignar la contraseña hasheada
+        // this.contrasenaHash = contrasenaHash;
     }
 
     public String getEspecialidad() {
@@ -47,13 +46,8 @@ public class Veterinario extends Persona {
         this.licencia = licencia;
     }
 
-    public String getContrasenaHash() {
-        return contrasenaHash;
-    }
-
-    public void setContrasenaHash(String contrasenaHash) {
-        this.contrasenaHash = contrasenaHash;
-    }
+    // public String getContrasenaHash() { return contrasenaHash; }
+    // public void setContrasenaHash(String contrasenaHash) { this.contrasenaHash = contrasenaHash; }
 
     @Override
     public String toString() {
@@ -64,12 +58,12 @@ public class Veterinario extends Persona {
 
     @Override
     public JSONObject toJSONObject() {
-        JSONObject jsonObject = super.toJSONObject();
+        JSONObject jsonObject = super.toJSONObject(); //obtiene el JSONObject de Persona (que ya incluye RUT)
         try {
             jsonObject.put("tipo", "veterinario");
             jsonObject.put("especialidad", especialidad);
             jsonObject.put("licencia", licencia);
-            jsonObject.put("contrasenaHash", contrasenaHash);
+            // jsonObject.put("contrasenaHash", contrasenaHash);
         } catch (JSONException e) {
             System.err.println("Error al crear JSONObject de Veterinario: " + e.getMessage());
         }
@@ -87,11 +81,12 @@ public class Veterinario extends Persona {
             String correoElectronico = jsonObject.getString("correoElectronico");
             String especialidad = jsonObject.getString("especialidad");
             String licencia = jsonObject.getString("licencia");
-            String contrasenaHash = jsonObject.getString("contrasenaHash");
+            // String contrasenaHash = jsonObject.optString("contrasenaHash", "");
 
+            //constructor sin el parámetro de contraseña
             return new Veterinario(id, nombre, rut, fechaNacimiento, direccion,
                     numeroTelefono, correoElectronico,
-                    especialidad, licencia, contrasenaHash);
+                    especialidad, licencia);
         } catch (JSONException | java.time.format.DateTimeParseException e) {
             System.err.println("Error al parsear JSONObject a Veterinario: " + e.getMessage());
             return null;
