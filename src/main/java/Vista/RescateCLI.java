@@ -1,32 +1,31 @@
 package Vista;
 
 import Controlador.RescatistaControlador;
+import Controlador.AnimalControlador; //pueda informar rescates
+import Modelo.Animal; // para mostrar detalles de animales rescatados
 import Modelo.Rescatista;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.Scanner;
-import java.util.ArrayList;
 
 public class RescateCLI {
 
     private Scanner sc;
-    private RescatistaControlador controlador;
+    private RescatistaControlador rescatistaControlador;
+    private AnimalControlador animalControlador; // informar rescate
 
-    public RescateCLI(RescatistaControlador controlador) {
+    public RescateCLI(RescatistaControlador rescatistaControlador, AnimalControlador animalControlador) {
         this.sc = new Scanner(System.in);
-        this.controlador = controlador;
+        this.rescatistaControlador = rescatistaControlador;
+        this.animalControlador = animalControlador;
     }
 
     public void mostrarMenuPrincipal() {
         while (true) {
             System.out.println("\n--- MENÚ RESCATISTA ---");
-            System.out.println("1. Registrar nuevo rescatista");
-            System.out.println("2. Iniciar sesión como Rescatista"); //NUEVOO000
-            System.out.println("3. Listar todos los rescatistas");
-            System.out.println("4. Buscar rescatista por ID");
-            System.out.println("5. Actualizar rescatista");
-            System.out.println("6. Eliminar rescatista");
-            System.out.println("7. Salir");
+            System.out.println("1. Registrarse como Rescatista");
+            System.out.println("2. Iniciar sesión como Rescatista");
+            System.out.println("3. Salir");
             System.out.print("Ingrese su opción: ");
             String opcion = sc.nextLine();
 
@@ -34,25 +33,13 @@ public class RescateCLI {
                 case "1":
                     registrarNuevoRescatista();
                     break;
-                case "2": // NUEVO
+                case "2":
                     if (iniciarSesionRescatista()) {
-                        mostrarMenuRescatistaLogueado(); // MenU específico tras login
+                        mostrarMenuRescatistaLogueado(); // Menú específico tras login
                     }
                     break;
                 case "3":
-                    listarRescatistas();
-                    break;
-                case "4":
-                    buscarRescatistaPorId();
-                    break;
-                case "5":
-                    actualizarRescatista();
-                    break;
-                case "6":
-                    eliminarRescatista();
-                    break;
-                case "7":
-                    System.out.println("Saliendo del programa de gestión de rescatistas.");
+                    System.out.println("Saliendo del menú de rescatistas.");
                     return;
                 default:
                     System.out.println("Opción no válida. Por favor, intente de nuevo.");
@@ -87,100 +74,93 @@ public class RescateCLI {
         System.out.print("Correo Electrónico: ");
         String correoElectronico = sc.nextLine();
 
-        System.out.print("Contraseña: "); // ¡NUEVO! Pedir contraseña
-        String contrasena = sc.nextLine();
 
-        if (controlador.registrarRescatista(nombre, rut, fechaNacimiento, direccion,
-                numeroTelefono, correoElectronico, contrasena)) {
+        if (rescatistaControlador.registrarRescatista(nombre, rut, fechaNacimiento, direccion,
+                numeroTelefono, correoElectronico)) {
             System.out.println("Rescatista registrado exitosamente.");
         } else {
             System.out.println("Error al registrar rescatista. Posiblemente el correo ya está en uso.");
         }
     }
 
-    // Para el inicio de sesión del rescatista
     private boolean iniciarSesionRescatista() {
         System.out.println("\n--- Iniciar Sesión Rescatista ---");
         System.out.print("Ingrese su correo electrónico: ");
         String correo = sc.nextLine();
-        System.out.print("Ingrese su contraseña: ");
-        String contrasena = sc.nextLine();
 
-        if (controlador.iniciarSesion(correo, contrasena)) {
-            System.out.println("¡Bienvenido " + controlador.getRescatistaActual().getNombre() + "!");
+        if (rescatistaControlador.iniciarSesion(correo)) { // se pasa solo el correo
+            System.out.println("¡Bienvenido/a Rescatista " + rescatistaControlador.getRescatistaActual().getNombre() + "!");
             return true;
         } else {
-            System.out.println("Credenciales incorrectas o usuario no registrado como Rescatista.");
+            System.out.println("Correo electrónico no encontrado o no corresponde a un Rescatista.");
             return false;
         }
     }
 
-    // MenU para el rescatista una vez logueado
     private void mostrarMenuRescatistaLogueado() {
         while (true) {
             System.out.println("\n--- MENÚ DE RESCATISTA LOGUEADO ---");
-            System.out.println("1. Realizar un nuevo rescate (Pendiente de implementar lógica)");
-            System.out.println("2. Ver mis datos (Pendiente de implementar lógica)");
+            System.out.println("1. Informar nuevo rescate");
+            System.out.println("2. Ver mis datos");
             System.out.println("3. Cerrar sesión");
             System.out.print("Ingrese su opción: ");
             String opcion = sc.nextLine();
 
             switch (opcion) {
                 case "1":
-                    System.out.println("Funcionalidad 'Realizar un nuevo rescate' en desarrollo.");
-                    // Aquí iría la lógica para el registro de resccate
+                    informarNuevoRescate();
                     break;
                 case "2":
                     System.out.println("Funcionalidad 'Ver mis datos' en desarrollo.");
-                    // Aquí se mostrarían los datos del rescatistaActual
-                    if (controlador.getRescatistaActual() != null) {
-                        System.out.println(controlador.getRescatistaActual().toString());
+                    if (rescatistaControlador.getRescatistaActual() != null) {
+                        System.out.println(rescatistaControlador.getRescatistaActual().toString());
                     }
                     break;
                 case "3":
-                    controlador.cerrarSesion();
-                    System.out.println("Sesión cerrada. Volviendo al menú principal.");
-                    return; // Salir de este menú y volver al principal
+                    rescatistaControlador.cerrarSesion();
+                    System.out.println("Sesión cerrada. Volviendo al menú principal de Rescatista.");
+                    return; // Salir de este menú y volver al principal de Rescatista
                 default:
                     System.out.println("Opción no válida. Intente nuevamente.");
             }
         }
     }
 
-
-    private void listarRescatistas() {
-        System.out.println("\n--- Listado de Rescatistas ---");
-        ArrayList<Rescatista> rescatistas = controlador.listarTodosRescatistas();
-        if (rescatistas.isEmpty()) {
-            System.out.println("No hay rescatistas registrados.");
-        } else {
-            for (Rescatista res : rescatistas) {
-                System.out.println(res.toString()); // Usará el toString modificado de Rescatista
-            }
-        }
-    }
-
-    private void buscarRescatistaPorId() {
-        System.out.println("\n--- Buscar Rescatista por ID ---");
-        System.out.print("Ingrese el ID del rescatista a buscar: ");
-        String id = sc.nextLine();
-        Rescatista rescatista = controlador.buscarRescatistaPorld(id);
-        if (rescatista != null) {
-            System.out.println("Rescatista encontrado: " + rescatista.toString());
-        } else {
-            System.out.println("Rescatista no encontrado.");
-        }
-    }
-
-    private void actualizarRescatista() {
-        System.out.println("\n--- Actualizar Rescatista ---");
-        System.out.print("Ingrese el ID del rescatista a actualizar: ");
-        String id = sc.nextLine();
-
-        Rescatista rescatistaExistente = controlador.buscarRescatistaPorld(id);
-        if (rescatistaExistente == null) {
-            System.out.println("Rescatista no encontrado.");
+    private void informarNuevoRescate() {
+        System.out.println("\n--- Informar Nuevo Rescate ---");
+        //que hay un rescatista logueado
+        if (rescatistaControlador.getRescatistaActual() == null) {
+            System.out.println("Debe iniciar sesión como rescatista para informar un rescate.");
             return;
         }
 
-        System.out.println("De
+        System.out.print("Especie del animal (ej: Perro, Gato): ");
+        String especie = sc.nextLine();
+        System.out.print("Raza del animal: ");
+        String raza = sc.nextLine();
+        System.out.print("Sexo del animal (Macho/Hembra): "); //ups casi pongo femenno o masculino
+        String sexo = sc.nextLine();
+        int edad = -1;
+        while (edad < 0) {
+            System.out.print("Edad del animal aproximada (en años): ");
+            try {
+                edad = Integer.parseInt(sc.nextLine());
+            } catch (NumberFormatException e) {
+                System.out.println("Por favor, ingrese un número válido para la edad.");
+            }
+        }
+        System.out.print("Descripción de salud (ej: herido, desnutrido, sano): ");
+        String estadoSalud = sc.nextLine();
+        System.out.print("Ubicación del rescate: ");
+        String ubicacion = sc.nextLine();
+
+        // El ID del rescatista logueado se obtiene del controlador
+        String idRescatista = rescatistaControlador.getRescatistaActual().getId();
+
+        if (animalControlador.registrarAnimal(especie, raza, sexo, edad, estadoSalud, ubicacion, idRescatista)) {
+            System.out.println("Rescate informado y animal registrado exitosamente.");
+        } else {
+            System.out.println("Error al informar el rescate o registrar el animal.");
+        }
+    }
+}

@@ -1,120 +1,98 @@
 package Controlador;
 
-import Datos.PersonaDA;
-import Modelo.Persona;
 import Modelo.Rescatista;
+import Modelo.Persona;
+import Datos.PersonaDA;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Optional; //  usar Optional para buscar Persona por correo
-import org.mindrot.jbcrypt.BCrypt;
+import java.util.Optional;
 
 public class RescatistaControlador {
 
     private PersonaDA personaDA;
-    private Rescatista rescatistaActual; // NUEVO Para mantener el rescatista logueado
+    private Rescatista rescatistaActual; // Para mantener el rescatista logueado
 
     public RescatistaControlador(PersonaDA personaDA) {
         this.personaDA = personaDA;
     }
-
-    // ahora incluye 'contrasenaPlana'
+    //registrar un nuevo rescatista (sin parámetro de contraseña)
     public boolean registrarRescatista(String nombre, String rut, LocalDate fechaNacimiento,
                                        String direccion, String numeroTelefono,
-                                       String correoElectronico, String contrasenaPlana) { // Contraseña plana
-        // Verifica si el correo ya existe
-        if (personaDA.buscarPersonaPorCorreo(correoElectronico).isPresent()) { // usando Optional
+                                       String correoElectronico) {
+        //si el correo ya existe
+        if (personaDA.buscarPersonaPorCorreo(correoElectronico).isPresent()) {
+            System.out.println("Error: El correo electrónico ya está registrado.");
             return false;
         }
-
-        //el constructor de Rescatista se encarga de hashear la contraseña
-        Rescatista nuevoRescatista = new Rescatista(nombre, rut, fechaNacimiento,
-                direccion, numeroTelefono,
-                correoElectronico, contrasenaPlana);
+        Rescatista nuevoRescatista = new Rescatista(nombre, rut, fechaNacimiento, direccion,
+                numeroTelefono, correoElectronico);
         personaDA.guardarPersona(nuevoRescatista);
+        System.out.println("Rescatista registrado exitosamente con ID: " + nuevoRescatista.getId());
         return true;
     }
 
-    //para iniciar sesion de un rescatista
-    public boolean iniciarSesion(String correo, String contrasenaPlana) {
+    // meodo para iniciar sesión solo verifica existencia de correo (ojo solo pra el rescatista)
+    public boolean iniciarSesion(String correo) {
         Optional<Persona> personaOptional = personaDA.buscarPersonaPorCorreo(correo);
 
         if (personaOptional.isPresent()) {
             Persona persona = personaOptional.get();
             if (persona instanceof Rescatista) {
-                Rescatista rescatista = (Rescatista) persona;
-                // compara con la contraseña hasheada
-                if (BCrypt.checkpw(contrasenaPlana, rescatista.getContrasenaHash())) {
-                    this.rescatistaActual = rescatista;
-                    return true;
-                }
+                this.rescatistaActual = (Rescatista) persona;
+                return true;
             }
         }
-        return false; // credenciales incorrectas o no es un Rescatista
-    }
+        return false;
 
-    // para cerrar sesion
     public void cerrarSesion() {
         this.rescatistaActual = null;
     }
 
-    // para obtener el rescatista actualmente logueado
     public Rescatista getRescatistaActual() {
         return rescatistaActual;
     }
 
-
-    public Rescatista buscarRescatistaPorld(String id) {
-        ArrayList<Persona> personas = personaDA.cargarPersonas();
-        for (Persona persona : personas) {
-            if (persona instanceof Rescatista && persona.getId().equals(id)) {
-                return (Rescatista) persona;
-            }
+    //para buscar un rescatista por ID
+    public Rescatista buscarRescatistaPorId(String id) {
+        Persona persona = personaDA.buscarPersonaPorld(id);
+        if (persona instanceof Rescatista) {
+            return (Rescatista) persona;
         }
         return null;
     }
 
+    // para listar todos los rescatistas
     public ArrayList<Rescatista> listarTodosRescatistas() {
         ArrayList<Rescatista> rescatistas = new ArrayList<>();
-        ArrayList<Persona> personas = personaDA.cargarPersonas();
-        for (Persona persona : personas) {
-            if (persona instanceof Rescatista) {
-                rescatistas.add((Rescatista) persona);
+        for (Persona p : personaDA.cargarPersonas()) {
+            if (p instanceof Rescatista) {
+                rescatistas.add((Rescatista) p);
             }
         }
         return rescatistas;
     }
 
+    // para que el Rescatista actualice sus propios datos (sin contraseña)
     public boolean actualizarRescatista(String id, String nombre, String rut, LocalDate fechaNacimiento,
-                                        String direccion, String numeroTelefono, String correoElectronico,
-                                        String contrasenaPlana) { //contraseña plana si se desea actualizar
-        Rescatista rescatistaExistente = buscarRescatistaPorld(id);
-        if (rescatistaExistente != null) {
-            // actualizar solo los campos que cambian
-            rescatistaExistente.setNombre(nombre); //el rut noooo, asumimos
-            rescatistaExistente.setFechaNacimiento(fechaNacimiento);
-            rescatistaExistente.setDireccion(direccion);
-            rescatistaExistente.setNumeroTelefono(numeroTelefono);
-            rescatistaExistente.setCorreoElectronico(correoElectronico);
-
-            // aolo actualizar la contraseña si se proporciona una nueva
-            if (contrasenaPlana != null && !contrasenaPlana.isEmpty()) {
-                // generar un nuevo hash para la nueva contraseña
-                String nuevoHash = BCrypt.hashpw(contrasenaPlana, BCrypt.gensalt());
-                rescatistaExistente.setContrasenaHash(nuevoHash); // setter privado en Rescatista
-            }
-
-            personaDA.actualizarPersona(rescatistaExistente);
-            return true;
+                                        String direccion, String numeroTelefono, String correoElectronico) {
+        if (rescatistaActual == null || !rescatistaActual.getId().equals(id)) {
+            System.out.println("Error: No tiene permiso para actualizar este perfil o no ha iniciado sesión.");
+            return false;
         }
-        return false;
-    }
 
-    public boolean eliminarRescatista(String id) {
-        Rescatista rescatista = buscarRescatistaPorld(id);
-        if (rescatista != null) {
-            personaDA.eliminarPersona(id);
-            return true;
+        Rescatista rescatistaAActualizar = buscarRescatistaPorId(id);
+        if (rescatistaAActualizar == null) {
+            return false; // No se encontró el rescatista (aunque ya se validó el ID arriba)
         }
-        return false;
+
+        // Actualizar campos comunes
+        rescatistaAActualizar.setNombre(nombre);
+        rescatistaAActualizar.setRut(rut);
+        rescatistaAActualizar.setFechaNacimiento(fechaNacimiento);
+        rescatistaAActualizar.setDireccion(direccion);
+        rescatistaAActualizar.setNumeroTelefono(numeroTelefono);
+        rescatistaAActualizar.setCorreoElectronico(correoElectronico);
+
+        return personaDA.actualizarPersona(rescatistaAActualizar);
     }
 }

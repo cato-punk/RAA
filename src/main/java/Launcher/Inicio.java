@@ -1,37 +1,43 @@
 package Launcher;
 
-import Controlador.AnimalControlador;
 import Controlador.AdoptanteControlador;
+import Controlador.AnimalControlador; //
 import Controlador.RescatistaControlador;
 import Controlador.VeterinarioControlador;
+import Controlador.AdminControlador;
 import Datos.AnimalDA;
 import Datos.PersonaDA;
-import Vista.MenuPrincipalCLI;
-
-// Para generar IDs únicos
-import java.util.UUID;
+import Vista.VisualizacionAdoptanteCLI;
+import Vista.RescateCLI;
+import Vista.GestionVeterinarioCLI;
+import Vista.AdminCLI;
+import Vista.MenuPrincipalCLI; //
 
 public class Inicio {
+
     public static void main(String[] args) {
-        // Inicializar DAOs (Data Access Objects)
+        PersonaDA personaDA = new PersonaDA();
         AnimalDA animalDA = new AnimalDA();
-        PersonaDA personaDAO = new PersonaDA();
 
-        // Inicializar Controladores, inyectando los DAs  , tengo que investigar la inyeccion
-        AnimalControlador animalControlador = new AnimalControlador(animalDA);
-        RescatistaControlador rescatistaControlador = new RescatistaControlador(personaDA); //aca estan en rojito porque no he ehcho ningun avarable de DA
-        VeterinarioControlador veterinarioControlador = new VeterinarioControlador(personaDA);
-        AdoptanteControlador adoptanteControlador = new AdoptanteControlador(animalDA); // Adoptante interactúa con animales
 
-        // Inicializar la Vista CLI
-        MenuPrincipalCLI menuPrincipal = new MenuPrincipalCLI(
-                animalControlador,  //estas partes estan rojito porque no he ehcho ningun constructor
-                rescatistaControlador,//weno ahora hice el de rescatista eniweis
-                veterinarioControlador,
-                adoptanteControlador
+        AdoptanteControlador adoptanteControlador = new AdoptanteControlador(personaDA, animalDA);
+        RescatistaControlador rescatistaControlador = new RescatistaControlador(personaDA);
+        VeterinarioControlador veterinarioControlador = new VeterinarioControlador(personaDA, animalDA);
+        AdminControlador adminControlador = new AdminControlador(personaDA);
+
+        VisualizacionAdoptanteCLI adoptanteCLI = new VisualizacionAdoptanteCLI(adoptanteControlador);
+        RescateCLI rescateCLI = new RescateCLI(rescatistaControlador, animalControlador);
+        GestionVeterinarioCLI veterinarioCLI = new GestionVeterinarioCLI(veterinarioControlador);
+        AdminCLI adminCLI = new AdminCLI(adminControlador);
+
+        MenuPrincipalCLI menuPrincipalCLI = new MenuPrincipalCLI(
+                adoptanteCLI,
+                rescateCLI,
+                veterinarioCLI,
+                adminCLI
         );
 
-        // Iniciar la aplicación
-        menuPrincipal.mostrarMenu(); //esta es la tipica pero no he hecho ningun menu
+        // Iniciar mostrando el menú principal
+        menuPrincipalCLI.mostrarMenuPrincipal();
     }
 }
