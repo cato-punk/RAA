@@ -6,37 +6,65 @@ import org.json.JSONException;
 
 public class Adoptante extends Persona {
 
-    // constructor principal, ahora con rut
+    private String preferencias;
+    private String informacionAdopcion;
+
+
+    // constructor principal para crear un nuevo adoptante (sin contraseña)
     public Adoptante(String nombre, String rut, LocalDate fechaNacimiento, String direccion,
-                     String numeroTelefono, String correoElectronico) {
+                     String numeroTelefono, String correoElectronico, String preferencias,
+                     String informacionAdopcion) { // no paramtero contraseña
         super(nombre, rut, fechaNacimiento, direccion, numeroTelefono, correoElectronico);
+        this.preferencias = preferencias;
+        this.informacionAdopcion = informacionAdopcion;
+        // this.contrasenaHash = BCrypt.hashpw(contrasenaPlana, BCrypt.gensalt()); // se va por ahora
     }
 
-    // constructor para cargar desde JSON, ahora con rut
+    // constructor para cargar desde JSON (sin contraseña hasheada)
     public Adoptante(String id, String nombre, String rut, LocalDate fechaNacimiento, String direccion,
-                     String numeroTelefono, String correoElectronico) {
+                     String numeroTelefono, String correoElectronico, String preferencias,
+                     String informacionAdopcion) {
         super(id, nombre, rut, fechaNacimiento, direccion, numeroTelefono, correoElectronico);
+        this.preferencias = preferencias;
+        this.informacionAdopcion = informacionAdopcion;
+        // this.contrasenaHash = contrasenaHash; //se va
     }
+
+    public String getPreferencias() {
+        return preferencias;
+    }
+
+    public void setPreferencias(String preferencias) {
+        this.preferencias = preferencias;
+    }
+
+    public String getInformacionAdopcion() {
+        return informacionAdopcion;
+    }
+
+    public void setInformacionAdopcion(String informacionAdopcion) {
+        this.informacionAdopcion = informacionAdopcion;
+    }
+
+    // public String getContrasenaHash() { return contrasenaHash; }
+    // public void setContrasenaHash(String contrasenaHash) { this.contrasenaHash = contrasenaHash; }
+
 
     @Override
     public String toString() {
         return "Adoptante - ID: " + getId() + ", Nombre: " + getNombre() + ", RUT: " + getRut() +
-                ", Correo: " + getCorreoElectronico();
+                ", Correo: " + getCorreoElectronico() + ", Preferencias: " + preferencias +
+                ", Info Adopción: " + informacionAdopcion;
     }
 
     @Override
     public JSONObject toJSONObject() {
-        JSONObject jsonObject = new JSONObject();
+        JSONObject jsonObject = super.toJSONObject();
         try {
-            jsonObject.put("id", getId());
-            jsonObject.put("nombre", getNombre());
-            jsonObject.put("rut", getRut()); // añadir RUT al JSON
-            jsonObject.put("fechaNacimiento", getFechaNacimiento().toString());
-            // jsonObject.put("sexo", getSexo()); // Eliminado
-            jsonObject.put("direccion", getDireccion());
-            jsonObject.put("numeroTelefono", getNumeroTelefono());
-            jsonObject.put("correoElectronico", getCorreoElectronico());
-            jsonObject.put("tipo", "adoptante"); // para diferenciar al cargar
+            jsonObject.put("tipo", "adoptante");
+            jsonObject.put("preferencias", preferencias);
+            jsonObject.put("informacionAdopcion", informacionAdopcion);
+            // jsonObject.put("contrasenaHash", contrasenaHash);
         } catch (JSONException e) {
             System.err.println("Error al crear JSONObject de Adoptante: " + e.getMessage());
         }
@@ -47,13 +75,18 @@ public class Adoptante extends Persona {
         try {
             String id = jsonObject.getString("id");
             String nombre = jsonObject.getString("nombre");
-            String rut = jsonObject.getString("rut"); // Obtener RUT del JSON
+            String rut = jsonObject.getString("rut");
             LocalDate fechaNacimiento = LocalDate.parse(jsonObject.getString("fechaNacimiento"));
-            // String sexo = jsonObject.getString("sexo"); // Eliminado
             String direccion = jsonObject.getString("direccion");
             String numeroTelefono = jsonObject.getString("numeroTelefono");
             String correoElectronico = jsonObject.getString("correoElectronico");
-            return new Adoptante(id, nombre, rut, fechaNacimiento, direccion, numeroTelefono, correoElectronico);
+            String preferencias = jsonObject.getString("preferencias");
+            String informacionAdopcion = jsonObject.getString("informacionAdopcion");
+            // String contrasenaHash = jsonObject.optString("contrasenaHash", "");
+
+            // Usar el constructor sin el parámetro de contraseña
+            return new Adoptante(id, nombre, rut, fechaNacimiento, direccion,
+                    numeroTelefono, correoElectronico, preferencias, informacionAdopcion);
         } catch (JSONException | java.time.format.DateTimeParseException e) {
             System.err.println("Error al parsear JSONObject a Adoptante: " + e.getMessage());
             return null;
