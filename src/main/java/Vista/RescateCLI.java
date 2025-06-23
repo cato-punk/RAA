@@ -1,144 +1,186 @@
 package Vista;
 
-import Controlador.AnimalControlador;
 import Controlador.RescatistaControlador;
+import Modelo.Rescatista;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
-import java.util.InputMismatchException;
 import java.util.Scanner;
+import java.util.ArrayList;
 
 public class RescateCLI {
-    private Scanner scanner;
-    private AnimalControlador animalControlador;
-    private RescatistaControlador rescatistaControlador;
 
-    public RescateCLI(AnimalControlador animalControlador, RescatistaControlador rescatistaControlador) {
-        this.scanner = new Scanner(System.in);
-        this.animalControlador = animalControlador;
-        this.rescatistaControlador = rescatistaControlador;
+    private Scanner sc;
+    private RescatistaControlador controlador;
+
+    public RescateCLI(RescatistaControlador controlador) {
+        this.sc = new Scanner(System.in);
+        this.controlador = controlador;
     }
 
-    public void mostrarMenuRescate() {
-        int opcion;
-        do {
-            System.out.println("\n--- Módulo Rescate ---"); //eu tenemos tildes
-            System.out.println("1. Registrar nuevo rescate de animal");
-            System.out.println("2. Registrarme como Rescatista (si aún no lo está)");
-            System.out.println("0. Volver al menú principal");
-            System.out.print("Seleccione una opción: ");
+    public void mostrarMenuPrincipal() {
+        while (true) {
+            System.out.println("\n--- MENÚ RESCATISTA ---");
+            System.out.println("1. Registrar nuevo rescatista");
+            System.out.println("2. Iniciar sesión como Rescatista"); //NUEVOO000
+            System.out.println("3. Listar todos los rescatistas");
+            System.out.println("4. Buscar rescatista por ID");
+            System.out.println("5. Actualizar rescatista");
+            System.out.println("6. Eliminar rescatista");
+            System.out.println("7. Salir");
+            System.out.print("Ingrese su opción: ");
+            String opcion = sc.nextLine();
 
-            try {
-                opcion = scanner.nextInt();
-                scanner.nextLine(); //salto
-
-                switch (opcion) {
-                    case 1:
-                        solicitarDatosRescate();
-                        break;
-                    case 2:
-                        registrarNuevoRescatista();
-                        break;
-                    case 0:
-                        break;
-                    default:
-                        System.out.println("Opción no válida. Intente de nuevo.");
-                }
-            } catch (InputMismatchException e) {
-                System.out.println("Entrada inválida. Por favor, ingrese un número.");
-                scanner.nextLine();
-                opcion = -1;
-            }
-        } while (opcion != 0);
-    }
-
-    public void solicitarDatosRescate() {
-        System.out.println("\n--- Ingreso de Datos del Animal Rescatado ---");
-
-        System.out.print("Especie (Perro, Gato, Otro): ");
-        String especie = scanner.nextLine();
-
-        System.out.print("Raza: ");
-        String raza = scanner.nextLine();
-
-        System.out.print("Sexo (Macho, Hembra, Desconocido): "); // sexo se mantiene en Animal
-        String sexo = scanner.nextLine();
-
-        System.out.print("Estado de Salud (Saludable, Herido, Enfermo, Buscando Hogar, Listo para Amar, etc.): ");
-        String estadoSalud = scanner.nextLine();
-
-        System.out.print("Lugar del Encuentro: ");
-        String lugarEncontrado = scanner.nextLine();
-
-        LocalDateTime fechaHoraRescate = null;
-        boolean fechaValida = false;
-        while (!fechaValida) {
-            System.out.print("Fecha y Hora del Encuentro (YYYY-MM-DD HH:MM): ");
-            String fechaHoraStr = scanner.nextLine();
-            try {
-                fechaHoraRescate = LocalDateTime.parse(fechaHoraStr.replace(" ", "T"));
-                fechaValida = true;
-            } catch (DateTimeParseException e) {
-                System.out.println("Formato de fecha y hora inválido. Use YYYY-MM-DD HH:MM.");
+            switch (opcion) {
+                case "1":
+                    registrarNuevoRescatista();
+                    break;
+                case "2": // NUEVO
+                    if (iniciarSesionRescatista()) {
+                        mostrarMenuRescatistaLogueado(); // MenU específico tras login
+                    }
+                    break;
+                case "3":
+                    listarRescatistas();
+                    break;
+                case "4":
+                    buscarRescatistaPorId();
+                    break;
+                case "5":
+                    actualizarRescatista();
+                    break;
+                case "6":
+                    eliminarRescatista();
+                    break;
+                case "7":
+                    System.out.println("Saliendo del programa de gestión de rescatistas.");
+                    return;
+                default:
+                    System.out.println("Opción no válida. Por favor, intente de nuevo.");
             }
         }
-
-        int edad = -1;
-        boolean edadValida = false;
-        while (!edadValida) {
-            System.out.print("Edad aproximada (años): ");
-            try {
-                edad = scanner.nextInt();
-                if (edad >= 0) {
-                    edadValida = true;
-                } else {
-                    System.out.println("La edad no puede ser negativa.");
-                }
-            } catch (InputMismatchException e) {
-                System.out.println("Entrada inválida. Por favor, ingrese un número entero para la edad.");
-                scanner.nextLine(); // Limpiar el buffer
-            } finally {
-                scanner.nextLine(); // Asegurar consumo de línea después de nextInt
-            }
-        }
-
-        animalControlador.registrarAnimal(especie, raza, sexo, estadoSalud, lugarEncontrado, fechaHoraRescate, edad);
     }
 
     private void registrarNuevoRescatista() {
-        System.out.println("\n--- Registro de Nuevo Rescatista ---");
-        System.out.print("Nombre completo: ");
-        String nombre = scanner.nextLine();
+        System.out.println("\n--- Registrar Nuevo Rescatista ---");
+        System.out.print("Nombre: ");
+        String nombre = sc.nextLine();
 
-        System.out.print("RUT (ej: 12345678-9): "); // Pedir el RUT
-        String rut = scanner.nextLine();
+        System.out.print("RUT (ej: 12345678-9): ");
+        String rut = sc.nextLine();
 
         LocalDate fechaNacimiento = null;
-        boolean fechaValida = false;
-        while (!fechaValida) {
-            System.out.print("Fecha de Nacimiento (YYYY-MM-DD): ");
-            String fechaNacStr = scanner.nextLine();
+        while (fechaNacimiento == null) {
+            System.out.print("Fecha de Nacimiento (AAAA-MM-DD): ");
             try {
-                fechaNacimiento = LocalDate.parse(fechaNacStr);
-                fechaValida = true;
+                fechaNacimiento = LocalDate.parse(sc.nextLine());
             } catch (DateTimeParseException e) {
-                System.out.println("Formato de fecha inválido. Use YYYY-MM-DD.");
+                System.out.println("Formato de fecha incorrecto. Use AAAA-MM-DD.");
             }
         }
 
-        // System.out.print("Sexo (masculino, femenino, otro): "); // eliminado de Persona
-        // String sexo = scanner.nextLine();
-
-        System.out.print("Dirección completa: ");
-        String direccion = scanner.nextLine();
+        System.out.print("Dirección: ");
+        String direccion = sc.nextLine();
 
         System.out.print("Número de Teléfono: ");
-        String telefono = scanner.nextLine();
+        String numeroTelefono = sc.nextLine();
 
         System.out.print("Correo Electrónico: ");
-        String email = scanner.nextLine();
+        String correoElectronico = sc.nextLine();
 
-        // pasar el rut al controlador
-        rescatistaControlador.registrarRescatista(nombre, rut, fechaNacimiento, direccion, telefono, email);
+        System.out.print("Contraseña: "); // ¡NUEVO! Pedir contraseña
+        String contrasena = sc.nextLine();
+
+        if (controlador.registrarRescatista(nombre, rut, fechaNacimiento, direccion,
+                numeroTelefono, correoElectronico, contrasena)) {
+            System.out.println("Rescatista registrado exitosamente.");
+        } else {
+            System.out.println("Error al registrar rescatista. Posiblemente el correo ya está en uso.");
+        }
     }
-}
+
+    // Para el inicio de sesión del rescatista
+    private boolean iniciarSesionRescatista() {
+        System.out.println("\n--- Iniciar Sesión Rescatista ---");
+        System.out.print("Ingrese su correo electrónico: ");
+        String correo = sc.nextLine();
+        System.out.print("Ingrese su contraseña: ");
+        String contrasena = sc.nextLine();
+
+        if (controlador.iniciarSesion(correo, contrasena)) {
+            System.out.println("¡Bienvenido " + controlador.getRescatistaActual().getNombre() + "!");
+            return true;
+        } else {
+            System.out.println("Credenciales incorrectas o usuario no registrado como Rescatista.");
+            return false;
+        }
+    }
+
+    // MenU para el rescatista una vez logueado
+    private void mostrarMenuRescatistaLogueado() {
+        while (true) {
+            System.out.println("\n--- MENÚ DE RESCATISTA LOGUEADO ---");
+            System.out.println("1. Realizar un nuevo rescate (Pendiente de implementar lógica)");
+            System.out.println("2. Ver mis datos (Pendiente de implementar lógica)");
+            System.out.println("3. Cerrar sesión");
+            System.out.print("Ingrese su opción: ");
+            String opcion = sc.nextLine();
+
+            switch (opcion) {
+                case "1":
+                    System.out.println("Funcionalidad 'Realizar un nuevo rescate' en desarrollo.");
+                    // Aquí iría la lógica para el registro de resccate
+                    break;
+                case "2":
+                    System.out.println("Funcionalidad 'Ver mis datos' en desarrollo.");
+                    // Aquí se mostrarían los datos del rescatistaActual
+                    if (controlador.getRescatistaActual() != null) {
+                        System.out.println(controlador.getRescatistaActual().toString());
+                    }
+                    break;
+                case "3":
+                    controlador.cerrarSesion();
+                    System.out.println("Sesión cerrada. Volviendo al menú principal.");
+                    return; // Salir de este menú y volver al principal
+                default:
+                    System.out.println("Opción no válida. Intente nuevamente.");
+            }
+        }
+    }
+
+
+    private void listarRescatistas() {
+        System.out.println("\n--- Listado de Rescatistas ---");
+        ArrayList<Rescatista> rescatistas = controlador.listarTodosRescatistas();
+        if (rescatistas.isEmpty()) {
+            System.out.println("No hay rescatistas registrados.");
+        } else {
+            for (Rescatista res : rescatistas) {
+                System.out.println(res.toString()); // Usará el toString modificado de Rescatista
+            }
+        }
+    }
+
+    private void buscarRescatistaPorId() {
+        System.out.println("\n--- Buscar Rescatista por ID ---");
+        System.out.print("Ingrese el ID del rescatista a buscar: ");
+        String id = sc.nextLine();
+        Rescatista rescatista = controlador.buscarRescatistaPorld(id);
+        if (rescatista != null) {
+            System.out.println("Rescatista encontrado: " + rescatista.toString());
+        } else {
+            System.out.println("Rescatista no encontrado.");
+        }
+    }
+
+    private void actualizarRescatista() {
+        System.out.println("\n--- Actualizar Rescatista ---");
+        System.out.print("Ingrese el ID del rescatista a actualizar: ");
+        String id = sc.nextLine();
+
+        Rescatista rescatistaExistente = controlador.buscarRescatistaPorld(id);
+        if (rescatistaExistente == null) {
+            System.out.println("Rescatista no encontrado.");
+            return;
+        }
+
+        System.out.println("De
