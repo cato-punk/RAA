@@ -1,0 +1,122 @@
+[
+  {
+    "tipo": "adoptante",
+    "fechaNacimiento": "1985-05-15",
+    "direccion": "Calle Primavera 15, Madrid",
+    "contrasena": "PapasCON77",
+    "id": "1",
+    "preferenciasAnimal": "perros",
+    "historialAdopciones": [],
+    "nombre": "Juan Pérez",
+    "correoElectronico": "juan.perez@email.com",
+    "numeroTelefono": "600111222"
+  },
+  {
+    "tipo": "adoptante",
+    "fechaNacimiento": "2014-02-02",
+    "direccion": "sfghjk",
+    "contrasena": "$2a$10$/kJMSdtUt5.5o3OQaQBJPOWLCUr2G6vJORCk.fF8woFENPaECi7aa",
+    "id": "c33d55de-d877-4031-a5b9-2610b70b87f9",
+    "preferenciasAnimal": "aves",
+    "historialAdopciones": [],
+    "nombre": "jaj",
+    "correoElectronico": "d",
+    "numeroTelefono": "15"
+  },
+  {
+    "tipo": "adoptante",
+    "fechaNacimiento": "2014-02-20",
+    "direccion": "sdfghjklñ",
+    "contrasena": "$2a$10$wcu.RyBwH8qfSdSOQ17vfe7SwvfrR3M80szHtrSBhTA2tZglJkllG",
+    "id": "630e8d8b-5be1-4d2a-9beb-1395c55872c6",
+    "preferenciasAnimal": "perro",
+    "historialAdopciones": [],
+    "nombre": "sdfghjkl",
+    "correoElectronico": "asdfghjk@email.com",
+    "numeroTelefono": "sdfgh"
+  },
+  {
+    "tipo": "adoptante",
+    "fechaNacimiento": "2014-02-02",
+    "direccion": "asdfg",
+    "contrasena": "$2a$10$Dvpf3Q3Cr0TOSykeQXKql.hmknvupo6tb8yDSP6cAZgkizcfpDIPG",
+    "id": "dc70aadf-b19f-42b3-bf30-82207f89e4e5",
+    "preferenciasAnimal": "sdfghj",
+    "historialAdopciones": [],
+    "nombre": "asdfgh",
+    "correoElectronico": "asdf",
+    "numeroTelefono": "adfg"
+  },
+  {
+    "tipo": "adoptante",
+    "fechaNacimiento": "2014-10-21",
+    "direccion": "sdfg",
+    "contrasena": "$2a$10$bOchnNEjX/JnXjFOX/IIfO9atcrzmCguFHUHymrdePuJg6FPk0kP6",
+    "id": "4dcc403e-7ea6-475e-b7c6-245cb291166d",
+    "preferenciasAnimal": "wer",
+    "historialAdopciones": [],
+    "nombre": "sdfgh",
+    "correoElectronico": "sdf",
+    "numeroTelefono": "sdfg"
+  },
+  {
+    "tipo": "adoptante",
+    "fechaNacimiento": "2015-10-14",
+    "direccion": "dfgfhj",
+    "contrasena": "$2a$10$Zpu8OiXclWsZFGeRqN1gJeO.L9UX6IAVloldrvjQCM7WdLoQu9bOq",
+    "id": "75059770-cc99-48ad-a03e-164c36bf5592",
+    "preferenciasAnimal": "sertdyui",
+    "historialAdopciones": [],
+    "nombre": "asdfghj",
+    "correoElectronico": "zredtf6g7i8",
+    "numeroTelefono": "awrtsgy67ut8i"
+  },
+  {
+    "tipo": "adoptante",
+    "fechaNacimiento": "2015-10-25",
+    "direccion": "sadfgh",
+    "contrasena": "fghj",
+    "id": "97675bdb-b1bd-4991-8e6a-2ff998bb49b4",
+    "preferenciasAnimal": "gatos",
+    "historialAdopciones": [],
+    "nombre": "María García",
+    "correoElectronico": "maria@example.com",
+    "numeroTelefono": "15"
+  },
+  {
+    "tipo": "adoptante",
+    "fechaNacimiento": "2015-01-01",
+    "direccion": "ddf",
+    "contrasena": "hjhhjhj",
+    "id": "cfb16d05-5807-45c1-82c5-f6105e5d4b96",
+    "preferenciasAnimal": "gf",
+    "historialAdopciones": [],
+    "nombre": "fghj",
+    "correoElectronico": "dfdffddf",
+    "numeroTelefono": "fd"
+  },
+  {
+    "tipo": "adoptante",
+    "fechaNacimiento": "2  ",
+    "direccion": "asdfghjklñ",
+    "contrasena": "asssss",
+    "id": "7b9bc684-d6f8-403a-bf63-a21ebd2678db",
+    "preferenciasAnimal": "kkk",
+    "historialAdopciones": [],
+    "nombre": "asdfghjkl",
+    "correoElectronico": "jhyhhgg",
+    "numeroTelefono": "kyy"
+  },
+  {
+    "tipo": "adoptante",
+    "fechaNacimiento": "2001-01-01",
+    "direccion": "s",
+    "contrasena": "erees",
+    "id": "42fc1b0f-d81f-4a63-82e8-1986efdb08cd",
+    "preferenciasAnimal": "d",
+    "historialAdopciones": [],
+    "nombre": "j",
+    "correoElectronico": "dd",
+    "numeroTelefono": "d"
+  }
+]
