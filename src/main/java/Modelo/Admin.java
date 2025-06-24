@@ -40,12 +40,26 @@ public class Admin extends Persona {
                 ", Correo: " + getCorreoElectronico();
     }
 
-    @Override
+    @Override // Línea 43 en tu captura
     public JSONObject toJSONObject() {
-        JSONObject jsonObject = super.toJSONObject();
+        JSONObject jsonObject = new JSONObject();
         try {
-            jsonObject.put("tipo", "admin"); // para identificar el tipo al cargar
-            jsonObject.put("contrasenaHash", contrasenaHash); // guardar la contraseña hasheada
+            // Incluir los campos de la clase base Persona manualmente
+            jsonObject.put("id", getId());
+            jsonObject.put("nombre", getNombre());
+            jsonObject.put("rut", getRut());
+            jsonObject.put("fechaNacimiento", getFechaNacimiento().toString());
+            jsonObject.put("direccion", getDireccion());
+            jsonObject.put("numeroTelefono", getNumeroTelefono());
+            jsonObject.put("correoElectronico", getCorreoElectronico());
+            jsonObject.put("tipo", "admin");
+
+            //contrasenaHash si existe
+            // getContrasenaHash() en Admin
+            if (getContrasenaHash() != null) {
+                jsonObject.put("contrasenaHash", getContrasenaHash()); // guardar la contraseña hasheada
+            }
+
         } catch (JSONException e) {
             System.err.println("Error al crear JSONObject de Admin: " + e.getMessage());
         }

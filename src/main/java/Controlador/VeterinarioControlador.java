@@ -3,21 +3,20 @@ package Controlador;
 import Modelo.Veterinario;
 import Modelo.Persona;
 import Datos.PersonaDA;
-import Datos.AnimalDA; // interactúa con animales
-import Modelo.Animal; // interactúa con animales
-
+import Datos.AnimalDA;
+import Modelo.Animal;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Optional;
-import java.util.List; // para listar animales y otros
-import java.util.stream.Collectors; // para filtrar listas
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class VeterinarioControlador {
 
     private PersonaDA personaDA;
-    private AnimalDA animalDA; //gestionar animales (diagnóstico, tratamiento)
-    private Veterinario veterinarioActual; //mantener el veterinario logueado
+    private AnimalDA animalDA;
+    private Veterinario veterinarioActual;
 
     public VeterinarioControlador(PersonaDA personaDA, AnimalDA animalDA) {
         this.personaDA = personaDA;
@@ -34,24 +33,24 @@ public class VeterinarioControlador {
         }
         Veterinario nuevoVeterinario = new Veterinario(nombre, rut, fechaNacimiento, direccion,
                 numeroTelefono, correoElectronico, especialidad,
-                licencia); //
+                licencia);
         personaDA.guardarPersona(nuevoVeterinario);
         System.out.println("Veterinario registrado exitosamente con ID: " + nuevoVeterinario.getId());
         return true;
     }
 
     //para iniciar sesión de un Veterinario (solo verific correo)
-    public boolean iniciarSesion(String correo) { //
+    public boolean iniciarSesion(String correo) {
         Optional<Persona> personaOptional = personaDA.buscarPersonaPorCorreo(correo);
 
         if (personaOptional.isPresent()) {
             Persona persona = personaOptional.get();
             if (persona instanceof Veterinario) {
                 this.veterinarioActual = (Veterinario) persona;
-                return true; // Veterinario encontrado, "sesión iniciada"
+                return true;
             }
         }
-        return false; // Veterinario no encontrado o el correo pertenece a otro tipo de persona
+        return false;
     }
 
     public void cerrarSesion() {
@@ -64,16 +63,21 @@ public class VeterinarioControlador {
 
     //para buscar un veterinario por ID
     public Veterinario buscarVeterinarioPorId(String id) {
-        Persona persona = personaDA.buscarPersonaPorld(id);
-        if (persona instanceof Veterinario) {
-            return (Veterinario) persona;
+        Optional<Persona> personaOptional = personaDA.buscarPersonaPorId(id);
+
+        if (personaOptional.isPresent()) {
+            Persona persona = personaOptional.get();
+            if (persona instanceof Veterinario) {
+                return (Veterinario) persona;
+            }
         }
-        return null;
+        return null; // Si no se encuentra o no es Veterinario
     }
 
-    // para listar todos los veterinarios (mas util para el Admin)
+    // para listar todos los veterinarios (más útil para el Admin)
     public ArrayList<Veterinario> listarTodosVeterinarios() {
         ArrayList<Veterinario> veterinarios = new ArrayList<>();
+        // Asumo que cargarPersonas() devuelve ArrayList<Persona>
         for (Persona p : personaDA.cargarPersonas()) {
             if (p instanceof Veterinario) {
                 veterinarios.add((Veterinario) p);
@@ -91,8 +95,14 @@ public class VeterinarioControlador {
             return false;
         }
 
-        Veterinario veterinarioAActualizar = buscarVeterinarioPorId(id);
+        Optional<Persona> veterinarioOptional = personaDA.buscarPersonaPorId(id);
+        Veterinario veterinarioAActualizar = null;
+        if (veterinarioOptional.isPresent() && veterinarioOptional.get() instanceof Veterinario) {
+            veterinarioAActualizar = (Veterinario) veterinarioOptional.get();
+        }
+
         if (veterinarioAActualizar == null) {
+            System.out.println("Error: Veterinario con ID " + id + " no encontrado para actualizar.");
             return false;
         }
 
@@ -109,13 +119,19 @@ public class VeterinarioControlador {
         return personaDA.actualizarPersona(veterinarioAActualizar);
     }
 
-    //gestión de animales por el vet
     public List<Animal> obtenerTodosLosAnimales() {
         return animalDA.cargarAnimales();
     }
 
-    public Animal buscarAnimalPorId(String id) {
-        return animalDA.buscarAnimalPorId(id);
+    public Animal buscarAnimalPorId(String idAnimal) { // id es el parámetro aquí
+        Optional<Animal> animalOptional = animalDA.buscarAnimalPorId(idAnimal); // Devuelve Optional<Animal>
+
+        if (animalOptional.isPresent()) {
+            return animalOptional.get(); // Obtiene el Animal si está presente
+        } else {
+            System.out.println("Error: Animal con ID " + idAnimal + " no encontrado.");
+            return null; // Si no se encuentra
+        }
     }
 
     public boolean actualizarEstadoSaludAnimal(String idAnimal, String nuevoEstado) {
@@ -123,26 +139,35 @@ public class VeterinarioControlador {
             System.out.println("Debe iniciar sesión como veterinario para actualizar el estado de salud de un animal.");
             return false;
         }
-        Animal animal = animalDA.buscarAnimalPorId(idAnimal);
-        if (animal != null) {
+        Optional<Animal> animalOptional = animalDA.buscarAnimalPorId(idAnimal);
+        if (animalOptional.isPresent()) {
+            Animal animal = animalOptional.get();
             animal.setEstadoSalud(nuevoEstado);
             animalDA.actualizarAnimal(animal);
+            System.out.println("Estado de salud del animal " + idAnimal + " actualizado a " + nuevoEstado + ".");
             return true;
+        } else {
+            System.out.println("Error: Animal con ID " + idAnimal + " no encontrado para actualizar el estado.");
+            return false;
         }
-        return false;
     }
+
 
     public boolean diagnosticarAnimal(String idAnimal, String diagnostico) {
         if (veterinarioActual == null) {
             System.out.println("Debe iniciar sesión como veterinario para diagnosticar un animal.");
             return false;
         }
-        Animal animal = animalDA.buscarAnimalPorId(idAnimal);
-        if (animal != null) {
+        Optional<Animal> animalOptional = animalDA.buscarAnimalPorId(idAnimal);
+        if (animalOptional.isPresent()) {
+            Animal animal = animalOptional.get();
             animal.setDiagnostico(diagnostico);
             animalDA.actualizarAnimal(animal);
+            System.out.println("Diagnóstico para animal " + idAnimal + " actualizado a: " + diagnostico + ".");
             return true;
+        } else {
+            System.out.println("Error: Animal con ID " + idAnimal + " no encontrado para diagnosticar.");
+            return false;
         }
-        return false;
     }
 }

@@ -4,7 +4,7 @@ import Modelo.Persona;
 import Modelo.Adoptante;
 import Modelo.Rescatista;
 import Modelo.Veterinario;
-import Modelo.Admin; // ¡NUEVO! Importar la clase Admin
+import Modelo.Admin;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -18,21 +18,20 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Optional; // Para buscar por correo
+import java.util.Optional;
 
 public class PersonaDA {
 
     private static final String FILE_PATH = "personas.json";
 
     public PersonaDA() {
-        // asegurarse de que el archivo existe al inicializar
+        //el archivo existe al inicializar
         Path path = Paths.get(FILE_PATH);
         if (!Files.exists(path)) {
             try {
                 Files.createFile(path);
-                // crear un JSONArray vacío para que siempre sea un JSON válido
                 try (FileWriter file = new FileWriter(FILE_PATH)) {
-                    file.write(new JSONArray().toString(4)); // escribe un array JSON vacío con indentar
+                    file.write(new JSONArray().toString(4)); //  array json vacío con indentación
                 }
             } catch (IOException e) {
                 System.err.println("Error al crear el archivo personas.json: " + e.getMessage());
@@ -41,9 +40,9 @@ public class PersonaDA {
     }
 
     public void guardarPersona(Persona persona) {
-        ArrayList<Persona> personas = cargarPersonas(); //las personas existentes
-        personas.add(persona); // aadir la nueva persona
-        guardarTodasLasPersonas(personas); // guardartodo de nuevo
+        ArrayList<Persona> personas = cargarPersonas(); // Carga las personas existentes
+        personas.add(persona); // Añadir la nueva persona
+        guardarTodasLasPersonas(personas); // Guardartodo de nuevo
     }
 
     public boolean actualizarPersona(Persona personaActualizada) {
@@ -58,10 +57,10 @@ public class PersonaDA {
         }
         if (encontrada) {
             guardarTodasLasPersonas(personas);
-            return true; //la persona fue encontrada y actualizada exitosamente.
+            return true; // La persona fue encontrada y actualizada exitosamente.
         } else {
             System.err.println("Persona con ID " + personaActualizada.getId() + " no encontrada para actualizar.");
-            return false; //persona no fue encontrada.
+            return false; // Persona no fue encontrada.
         }
     }
 
@@ -75,14 +74,14 @@ public class PersonaDA {
         return false;
     }
 
-    // para guardar la lista completa de personas
+    //para guardar la lista completa de personas
     private void guardarTodasLasPersonas(ArrayList<Persona> personas) {
         JSONArray jsonArray = new JSONArray();
         for (Persona p : personas) {
             jsonArray.put(p.toJSONObject());
         }
         try (FileWriter file = new FileWriter(FILE_PATH)) {
-            file.write(jsonArray.toString(4)); //con indentación para legibilidad
+            file.write(jsonArray.toString(4)); // Con indentación para legibilidad
         } catch (IOException e) {
             System.err.println("Error al guardar personas en " + FILE_PATH + ": " + e.getMessage());
         }
@@ -91,47 +90,76 @@ public class PersonaDA {
     public ArrayList<Persona> cargarPersonas() {
         ArrayList<Persona> personas = new ArrayList<>();
         try (FileReader reader = new FileReader(FILE_PATH)) {
-            JSONTokener tokener = new JSONTokener(reader);
-            JSONArray jsonArray = new JSONArray(tokener);
+            if (reader.ready()) { // Verifica si hay algo para leer
+                JSONTokener tokener = new JSONTokener(reader);
 
-            for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject jsonObject = jsonArray.getJSONObject(i);
-                String tipo = jsonObject.optString("tipo", "persona"); // Leer el tipo
+                if (tokener.nextClean() != '[') {
+                    System.err.println("Advertencia: El archivo personas.json no es un JSONArray válido o está vacío. Se inicializará.");
 
-                Persona persona = null;
-                switch (tipo) {
-                    case "adoptante":
-                        persona = Adoptante.fromJSONObject(jsonObject);
-                        break;
-                    case "rescatista":
-                        persona = Rescatista.fromJSONObject(jsonObject);
-                        break;
-                    case "veterinario":
-                        persona = Veterinario.fromJSONObject(jsonObject);
-                        break;
-                    case "admin": // ¡NUEVO! Manejar el tipo Admin
-                        persona = Admin.fromJSONObject(jsonObject);
-                        break;
-                    default:
-                        // Si no hay tipo especifico, o es un tipo desconocido, se podría manejar como Persona base
-                        // Pero para este diseño, cada Persona debe tener un tipo específico para instanciar correctamente.
-                        System.err.println("Tipo de persona desconocido o faltante en JSON: " + tipo);
-                        break;
+                    try (FileWriter file = new FileWriter(FILE_PATH)) {
+                        file.write(new JSONArray().toString(4));
+                    } catch (IOException ioException) {
+                        System.err.println("Error al resetear el archivo JSON: " + ioException.getMessage());
+                    }
+                    return personas; // Devolver lista vacía
                 }
-                if (persona != null) {
-                    personas.add(persona);
+
+                String content = Files.readString(Paths.get(FILE_PATH));
+                if (content.trim().isEmpty()) {
+                    // Si está vacío después de limpiar, inicializar
+                    try (FileWriter file = new FileWriter(FILE_PATH)) {
+                        file.write(new JSONArray().toString(4));
+                    } catch (IOException ioException) {
+                        System.err.println("Error al resetear el archivo JSON vacío: " + ioException.getMessage());
+                    }
+                    return personas;
+                }
+                JSONArray jsonArray = new JSONArray(content); // Parsear el String completo
+
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    JSONObject jsonObject = jsonArray.getJSONObject(i);
+                    String tipo = jsonObject.optString("tipo", "persona"); // Leer el tipo
+
+                    Persona persona = null;
+                    switch (tipo) {
+                        case "adoptante":
+                            persona = Adoptante.fromJSONObject(jsonObject);
+                            break;
+                        case "rescatista":
+                            persona = Rescatista.fromJSONObject(jsonObject);
+                            break;
+                        case "veterinario":
+                            persona = Veterinario.fromJSONObject(jsonObject);
+                            break;
+                        case "admin":
+                            persona = Admin.fromJSONObject(jsonObject);
+                            break;
+                        default:
+                            System.err.println("Tipo de persona desconocido o faltante en JSON: " + tipo + " para ID: " + jsonObject.optString("id", "N/A"));
+                            break;
+                    }
+                    if (persona != null) {
+                        personas.add(persona);
+                    }
+                }
+            } else {
+                //  (no tiene contenido)
+                System.out.println("El archivo personas.json está vacío. Se inicializará como un array JSON vacío.");
+                try (FileWriter file = new FileWriter(FILE_PATH)) {
+                    file.write(new JSONArray().toString(4));
+                } catch (IOException ioException) {
+                    System.err.println("Error al resetear el archivo JSON vacío: " + ioException.getMessage());
                 }
             }
         } catch (IOException e) {
             System.err.println("Error de I/O al cargar personas desde " + FILE_PATH + ": " + e.getMessage());
         } catch (JSONException e) {
-            // Esto puede ocurrir si el archivo JSON está mal formado o vacío
             System.err.println("Error JSON al cargar personas desde " + FILE_PATH + ": " + e.getMessage());
-            // Si el error es por un archivo JSON vacío, inicializarlo correctamente
+            // Intenta resetear el archivo si está mal formado
             try (FileWriter file = new FileWriter(FILE_PATH)) {
                 file.write(new JSONArray().toString(4));
             } catch (IOException ioException) {
-                System.err.println("Error al resetear el archivo JSON vacío: " + ioException.getMessage());
+                System.err.println("Error al resetear el archivo JSON mal formado: " + ioException.getMessage());
             }
         }
         return personas;
@@ -143,10 +171,10 @@ public class PersonaDA {
                 .findFirst();
     }
 
-    public Persona buscarPersonaPorld(String id) {
+
+    public Optional<Persona> buscarPersonaPorId(String id) {
         return cargarPersonas().stream()
                 .filter(p -> p.getId().equals(id))
-                .findFirst()
-                .orElse(null);
+                .findFirst(); // findFirst() ya devuelve Optional
     }
 }

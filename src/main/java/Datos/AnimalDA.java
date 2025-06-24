@@ -3,23 +3,26 @@ package Datos;
 import Modelo.Animal;
 import com.fasterxml.jackson.databind.ObjectMapper; //mapeo entre JSON y objetos Java
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule; //para LocalDateTime
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List; //usamos List en otros lados
+import java.util.Optional;
 
 public class AnimalDA {
 
     private static final String FILE_PATH = "animales.json";
     private ObjectMapper objectMapper;
 
+
     public AnimalDA() {
         objectMapper = new ObjectMapper();
         objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
         objectMapper.registerModule(new JavaTimeModule()); // Para manejar LocalDateTime
         objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
-        inicializarArchivo(); //que el archivo exista y sea válido
+        inicializarArchivo();
     }
 
     // para asegurar que el archivo JSON esté siempre listo
@@ -63,6 +66,7 @@ public class AnimalDA {
 
     public void agregarAnimal(Animal nuevoAnimal) {
         ArrayList<Animal> animales = cargarAnimales();
+        //verifiquemos si existen ids duplicados
         animales.add(nuevoAnimal);
         guardarAnimales(animales);
     }
@@ -84,14 +88,15 @@ public class AnimalDA {
         }
     }
 
-    public Animal buscarAnimalPorld(String id) {
+    //para devolver Optional<Animal>
+    public Optional<Animal> buscarAnimalPorId(String id) {
         ArrayList<Animal> animales = cargarAnimales();
         for (Animal animal : animales) {
             if (animal.getId().equals(id)) {
-                return animal;
+                return Optional.of(animal);
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     public boolean eliminarAnimal(String id) {

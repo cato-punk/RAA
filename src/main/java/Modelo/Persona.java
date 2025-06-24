@@ -39,6 +39,8 @@ public abstract class Persona {
         this.correoElectronico = correoElectronico;
     }
 
+
+
     // --- Getters y Setters ---
     public String getId() { return id; }
     public String getNombre() { return nombre; }

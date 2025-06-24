@@ -64,7 +64,7 @@ public class GestionAnimalCLI {
         System.out.println("\n--- Buscar Animal por ID ---");
         System.out.print("Ingrese el ID del animal a buscar: ");
         String id = sc.nextLine();
-        Animal animal = animalControlador.buscarAnimalPorld(id);
+        Animal animal = animalControlador.buscarAnimalPorId(id);
         if (animal != null) {
             System.out.println("Animal encontrado: " + animal.toString());
         } else {
@@ -77,7 +77,7 @@ public class GestionAnimalCLI {
         System.out.print("Ingrese el ID del animal a actualizar: ");
         String id = sc.nextLine();
 
-        Animal animalExistente = animalControlador.buscarAnimalPorld(id);
+        Animal animalExistente = animalControlador.buscarAnimalPorId(id);
         if (animalExistente == null) {
             System.out.println("Animal no encontrado con el ID: " + id);
             return;

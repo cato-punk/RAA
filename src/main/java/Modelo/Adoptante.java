@@ -12,11 +12,10 @@ public class Adoptante extends Persona {
 
     // constructor principal para crear un nuevo adoptante (sin contraseña)
     public Adoptante(String nombre, String rut, LocalDate fechaNacimiento, String direccion,
-                     String numeroTelefono, String correoElectronico, String preferencias,
-                     String informacionAdopcion) { // no paramtero contraseña
-        super(nombre, rut, fechaNacimiento, direccion, numeroTelefono, correoElectronico);
+                     String numeroTelefono, String correoElectronico, String preferencias){
+                     super(nombre, rut, fechaNacimiento, direccion, numeroTelefono, correoElectronico);// no paramtero contraseña
         this.preferencias = preferencias;
-        this.informacionAdopcion = informacionAdopcion;
+        this.informacionAdopcion = "No especificada"; //por defecto
         // this.contrasenaHash = BCrypt.hashpw(contrasenaPlana, BCrypt.gensalt()); // se va por ahora
     }
 
@@ -29,6 +28,16 @@ public class Adoptante extends Persona {
         this.informacionAdopcion = informacionAdopcion;
         // this.contrasenaHash = contrasenaHash; //se va
     }
+    // existente de 8 argumentos
+    public Adoptante(String nombre, String rut, LocalDate fechaNacimiento, String direccion,
+                     String numeroTelefono, String correoElectronico, String preferencias,
+                     String informacionAdopcion) {
+        super(nombre, rut, fechaNacimiento, direccion, numeroTelefono, correoElectronico);
+        this.preferencias = preferencias;
+        this.informacionAdopcion = informacionAdopcion;
+    }
+
+
 
     public String getPreferencias() {
         return preferencias;
@@ -59,13 +68,23 @@ public class Adoptante extends Persona {
 
     @Override
     public JSONObject toJSONObject() {
-        JSONObject jsonObject = super.toJSONObject();
+        JSONObject jsonObject = new JSONObject();
         try {
-            jsonObject.put("tipo", "adoptante");
+            // Campos de Persona
+            jsonObject.put("id", getId());
+            jsonObject.put("nombre", getNombre());
+            jsonObject.put("rut", getRut());
+            jsonObject.put("fechaNacimiento", getFechaNacimiento().toString());
+            jsonObject.put("direccion", getDireccion());
+            jsonObject.put("numeroTelefono", getNumeroTelefono());
+            jsonObject.put("correoElectronico", getCorreoElectronico());
+            jsonObject.put("tipo", "adoptante"); // Identificador de tipo
+
+            // Campos específicos de Adoptante
             jsonObject.put("preferencias", preferencias);
             jsonObject.put("informacionAdopcion", informacionAdopcion);
-            // jsonObject.put("contrasenaHash", contrasenaHash);
-        } catch (JSONException e) {
+
+        } catch (org.json.JSONException e) {
             System.err.println("Error al crear JSONObject de Adoptante: " + e.getMessage());
         }
         return jsonObject;
@@ -80,14 +99,12 @@ public class Adoptante extends Persona {
             String direccion = jsonObject.getString("direccion");
             String numeroTelefono = jsonObject.getString("numeroTelefono");
             String correoElectronico = jsonObject.getString("correoElectronico");
-            String preferencias = jsonObject.getString("preferencias");
-            String informacionAdopcion = jsonObject.getString("informacionAdopcion");
-            // String contrasenaHash = jsonObject.optString("contrasenaHash", "");
+            String preferencias = jsonObject.optString("preferencias", "");
+            String informacionAdopcion = jsonObject.optString("informacionAdopcion", "");
 
-            // Usar el constructor sin el parámetro de contraseña
             return new Adoptante(id, nombre, rut, fechaNacimiento, direccion,
                     numeroTelefono, correoElectronico, preferencias, informacionAdopcion);
-        } catch (JSONException | java.time.format.DateTimeParseException e) {
+        } catch (org.json.JSONException | java.time.format.DateTimeParseException e) {
             System.err.println("Error al parsear JSONObject a Adoptante: " + e.getMessage());
             return null;
         }

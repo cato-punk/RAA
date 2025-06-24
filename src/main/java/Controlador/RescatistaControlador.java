@@ -56,7 +56,7 @@ public class RescatistaControlador {
 
         //para buscar un rescatista por ID
         public Rescatista buscarRescatistaPorId (String id){
-            Persona persona = personaDA.buscarPersonaPorld(id);
+            Persona persona = personaDA.buscarPersonaPorId(id);
             if (persona instanceof Rescatista) {
                 return (Rescatista) persona;
             }

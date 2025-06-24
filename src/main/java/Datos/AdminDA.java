@@ -92,7 +92,7 @@ public class AdminDA {
 
     //para actualizar un administrador, devolviendo boolean
     public boolean actualizarAdmin(Admin adminActualizado) {
-        ArrayList<Admin> admins = cargarAdadmins();
+        ArrayList<Admin> admins = cargarAdmins();
         boolean encontrado = false;
         for (int i = 0; i < admins.size(); i++) {
             if (admins.get(i).getId().equals(adminActualizado.getId())) {
