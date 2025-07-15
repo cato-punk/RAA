@@ -1,87 +1,29 @@
 package Modelo;
 
-import java.time.LocalDate;
-import org.json.JSONObject;
-import org.json.JSONException;
-import org.mindrot.jbcrypt.BCrypt; // importar BCrypt de lo que hizo min
-
 public class Admin extends Persona {
+    private String contrasena;  // Contraseña única de administrador
 
-    private String contrasenaHash; // Solo el Admin tendrá contraseña hasheada (por ahora)
-
-    // constructor para crear un nuevo Admin
-    public Admin(String nombre, String rut, LocalDate fechaNacimiento, String direccion,
-                 String numeroTelefono, String correoElectronico, String contrasenaPlana) {
-        super(nombre, rut, fechaNacimiento, direccion, numeroTelefono, correoElectronico);
-        //hashing de la contraseña para seguridad
-        this.contrasenaHash = BCrypt.hashpw(contrasenaPlana, BCrypt.gensalt());
+    public Admin() {
+        super();
     }
 
-    // constructor para cargar un Admin desde JSON (la contraseña ya viene hasheada)
-    public Admin(String id, String nombre, String rut, LocalDate fechaNacimiento, String direccion,
-                 String numeroTelefono, String correoElectronico, String contrasenaHash) {
-        super(id, nombre, rut, fechaNacimiento, direccion, numeroTelefono, correoElectronico);
-        this.contrasenaHash = contrasenaHash;
+    public Admin(String id, String nombre, String rut, String direccion, String numeroTelefono, String correoElectronico, String contrasena) {
+        super(id, nombre, rut, direccion, numeroTelefono, correoElectronico);
+        this.contrasena = contrasena;
     }
 
-    // --- Getters y Setters para de Admin ---
-    public String getContrasenaHash() {
-        return contrasenaHash;
+    // Getter y Setter
+    public String getContrasena() {
+        return contrasena;
     }
 
-    // Setter para la contraseña (util si un admin actualiza su propia contraseña)
-    public void setContrasenaHash(String contrasenaHash) {
-        this.contrasenaHash = contrasenaHash;
+    public void setContrasena(String contrasena) {
+        this.contrasena = contrasena;
     }
 
     @Override
     public String toString() {
-        return "Admin - ID: " + getId() + ", Nombre: " + getNombre() + ", RUT: " + getRut() +
-                ", Correo: " + getCorreoElectronico();
-    }
-
-    @Override // Línea 43 en tu captura
-    public JSONObject toJSONObject() {
-        JSONObject jsonObject = new JSONObject();
-        try {
-            // Incluir los campos de la clase base Persona manualmente
-            jsonObject.put("id", getId());
-            jsonObject.put("nombre", getNombre());
-            jsonObject.put("rut", getRut());
-            jsonObject.put("fechaNacimiento", getFechaNacimiento().toString());
-            jsonObject.put("direccion", getDireccion());
-            jsonObject.put("numeroTelefono", getNumeroTelefono());
-            jsonObject.put("correoElectronico", getCorreoElectronico());
-            jsonObject.put("tipo", "admin");
-
-            //contrasenaHash si existe
-            // getContrasenaHash() en Admin
-            if (getContrasenaHash() != null) {
-                jsonObject.put("contrasenaHash", getContrasenaHash()); // guardar la contraseña hasheada
-            }
-
-        } catch (JSONException e) {
-            System.err.println("Error al crear JSONObject de Admin: " + e.getMessage());
-        }
-        return jsonObject;
-    }
-
-    public static Admin fromJSONObject(JSONObject jsonObject) {
-        try {
-            String id = jsonObject.getString("id");
-            String nombre = jsonObject.getString("nombre");
-            String rut = jsonObject.getString("rut");
-            LocalDate fechaNacimiento = LocalDate.parse(jsonObject.getString("fechaNacimiento"));
-            String direccion = jsonObject.getString("direccion");
-            String numeroTelefono = jsonObject.getString("numeroTelefono");
-            String correoElectronico = jsonObject.getString("correoElectronico");
-            String contrasenaHash = jsonObject.getString("contrasenaHash");
-
-            return new Admin(id, nombre, rut, fechaNacimiento, direccion,
-                    numeroTelefono, correoElectronico, contrasenaHash);
-        } catch (JSONException | java.time.format.DateTimeParseException e) {
-            System.err.println("Error al parsear JSONObject a Admin: " + e.getMessage());
-            return null;
-        }
+        return "Admin - " + super.toString() +
+                ", Contraseña: [OCULTA]"; // No mostrar la contraseña directamente
     }
 }

@@ -1,101 +1,144 @@
 package Controlador;
 
+import Datos.AnimalDAO;
+import Datos.RescatistaDAO;
+import Modelo.Animal;
 import Modelo.Rescatista;
-import Modelo.Persona;
-import Datos.PersonaDA;
+
 import java.time.LocalDate;
-import java.util.ArrayList;
+import java.time.LocalTime;
+import java.time.format.DateTimeParseException;
+import java.util.List;
 import java.util.Optional;
 
 public class RescatistaControlador {
+    private RescatistaDAO rescatistaDAO;
+    private AnimalDAO animalDAO;
 
-    private PersonaDA personaDA;
-    private Rescatista rescatistaActual; // Para mantener el rescatista logueado
-
-    public RescatistaControlador(PersonaDA personaDA) {
-        this.personaDA = personaDA;
+    public RescatistaControlador() {
+        this.rescatistaDAO = new RescatistaDAO();
+        this.animalDAO = new AnimalDAO();
     }
 
-    //registrar un nuevo rescatista (sin parámetro de contraseña)
-    public boolean registrarRescatista(String nombre, String rut, LocalDate fechaNacimiento,
-                                       String direccion, String numeroTelefono,
-                                       String correoElectronico) {
-        //si el correo ya existe
-        if (personaDA.buscarPersonaPorCorreo(correoElectronico).isPresent()) {
-            System.out.println("Error: El correo electrónico ya está registrado.");
-            return false;
-        }
-        Rescatista nuevoRescatista = new Rescatista(nombre, rut, fechaNacimiento, direccion,
-                numeroTelefono, correoElectronico);
-        personaDA.guardarPersona(nuevoRescatista);
-        System.out.println("Rescatista registrado exitosamente con ID: " + nuevoRescatista.getId());
-        return true;
-    }
+    /**
+     * Registra un nuevo rescatista en el sistema.
+     * Genera un ID único para el rescatista.
+     * @param nombre Nombre completo del rescatista.
+     * @param rut RUT del rescatista.
+     * @param direccion Dirección del rescatista.
+     * @param numeroTelefono Número de teléfono del rescatista.
+     * @param correoElectronico Correo electrónico del rescatista.
+     * @return El ID generado para el nuevo rescatista, o null si ya existe un rescatista con el mismo correo/ID.
+     */
+    public String registrarRescatista(String nombre, String rut, String direccion,
+                                      String numeroTelefono, String correoElectronico) {
 
-    // meodo para iniciar sesión solo verifica existencia de correo (ojo solo pra el rescatista)
-    public boolean iniciarSesion(String correo) {
-        Optional<Persona> personaOptional = personaDA.buscarPersonaPorCorreo(correo);
-
-        if (personaOptional.isPresent()) {
-            Persona persona = personaOptional.get();
-            if (persona instanceof Rescatista) {
-                this.rescatistaActual = (Rescatista) persona;
-                return true;
-            }
-        }
-        return false;
-    }
-
-        public void cerrarSesion() {
-            this.rescatistaActual = null;
-        }
-
-        public Rescatista getRescatistaActual () {
-            return rescatistaActual;
-        }
-
-        //para buscar un rescatista por ID
-        public Rescatista buscarRescatistaPorId (String id){
-            Persona persona = personaDA.buscarPersonaPorId(id);
-            if (persona instanceof Rescatista) {
-                return (Rescatista) persona;
-            }
+        if (nombre.isEmpty() || rut.isEmpty() || correoElectronico.isEmpty()) {
             return null;
         }
 
-        // para listar todos los rescatistas
-        public ArrayList<Rescatista> listarTodosRescatistas () {
-            ArrayList<Rescatista> rescatistas = new ArrayList<>();
-            for (Persona p : personaDA.cargarPersonas()) {
-                if (p instanceof Rescatista) {
-                    rescatistas.add((Rescatista) p);
-                }
-            }
-            return rescatistas;
+        // Verificar si el correo ya está en uso
+        List<Rescatista> rescatistas = rescatistaDAO.cargarTodos();
+        boolean correoExistente = rescatistas.stream()
+                .anyMatch(r -> r.getCorreoElectronico().equalsIgnoreCase(correoElectronico));
+        if (correoExistente) {
+            return "CorreoExistente"; // Indicador
         }
 
-        // para que el Rescatista actualice sus propios datos (sin contraseña)
-        public boolean actualizarRescatista (String id, String nombre, String rut, LocalDate fechaNacimiento,
-                String direccion, String numeroTelefono, String correoElectronico){
-            if (rescatistaActual == null || !rescatistaActual.getId().equals(id)) {
-                System.out.println("Error: No tiene permiso para actualizar este perfil o no ha iniciado sesión.");
-                return false;
+        String newId = IdGenerator.generateUniqueId();
+        Rescatista nuevoRescatista = new Rescatista(newId, nombre, rut, direccion, numeroTelefono, correoElectronico);
+        if (rescatistaDAO.agregar(nuevoRescatista)) {
+            return newId;
+        }
+        return null;
+    }
+
+    /**
+     * Intenta iniciar sesión como rescatista.
+     * @param id ID del rescatista.
+     * @param correoElectronico Correo del rescatista.
+     * @return El objeto Rescatista si las credenciales son correctas, o null en caso contrario.
+     */
+    public Rescatista iniciarSesion(String id, String correoElectronico) {
+        Optional<Rescatista> rescatistaOptional = rescatistaDAO.buscarPorId(id);
+        if (rescatistaOptional.isPresent()) {
+            Rescatista rescatista = rescatistaOptional.get();
+            if (rescatista.getCorreoElectronico().equals(correoElectronico)) {
+                return rescatista;
             }
+        }
+        return null;
+    }
 
-            Rescatista rescatistaAActualizar = buscarRescatistaPorId(id);
-            if (rescatistaAActualizar == null) {
-                return false; // No se encontró el rescatista (aunque ya se validó el ID arriba)
-            }
+    /**
+     * Informa un nuevo rescate y registra el animal.
+     * Asocia el animal al rescatista que lo informó.
+     * El estado inicial del animal es RESCATADO.
+     * @param rescatista El objeto Rescatista que informa el rescate.
+     * @param raza Raza del animal.
+     * @param especie Especie del animal.
+     * @param sexo Sexo del animal.
+     * @param estadoSalud Estado de salud del animal.
+     * @param lugarEncuentro Lugar donde se encontró.
+     * @param horaRescate Hora del rescate (HH:MM).
+     * @param fechaRescate Fecha del rescate (DD-MM-AAAA).
+     * @param edadAproximada Edad aproximada.
+     * @return El ID del animal rescatado si el registro fue exitoso, o null en caso de error.
+     */
+    public String informarRescate(Rescatista rescatista, String raza, String especie, String sexo,
+                                  String estadoSalud, String lugarEncuentro, String horaRescate,
+                                  String fechaRescate, String edadAproximada) {
 
-            // Actualizar campos comunes
-            rescatistaAActualizar.setNombre(nombre);
-            rescatistaAActualizar.setRut(rut);
-            rescatistaAActualizar.setFechaNacimiento(fechaNacimiento);
-            rescatistaAActualizar.setDireccion(direccion);
-            rescatistaAActualizar.setNumeroTelefono(numeroTelefono);
-            rescatistaAActualizar.setCorreoElectronico(correoElectronico);
-
-            return personaDA.actualizarPersona(rescatistaAActualizar);
+        if (!isValidTimeFormat(horaRescate) || !isValidDateFormat(fechaRescate)) {
+            return null;
+        }
+        if (raza.isEmpty() || especie.isEmpty() || sexo.isEmpty() || estadoSalud.isEmpty()) {
+            return null;
         }
 
+        String newAnimalId = IdGenerator.generateUniqueId();
+        Animal nuevoAnimal = new Animal(newAnimalId, raza, especie, sexo, estadoSalud, lugarEncuentro,
+                horaRescate, fechaRescate, edadAproximada,
+                rescatista.getNombre(), rescatista.getId(),
+                Animal.EstadoAdopcion.RESCATADO, null); // Sin veterinario asignado al inicio
+
+        if (animalDAO.agregar(nuevoAnimal)) {
+            // Actualizar la lista de animales rescatados del rescatista
+            rescatista.addAnimalesRescatadosId(newAnimalId);
+            rescatistaDAO.actualizar(rescatista); // Guardar los cambios del rescatista
+            return newAnimalId;
+        }
+        return null;
+    }
+
+    /**
+     * Busca un rescatista por su ID.
+     * @param id ID del rescatista a buscar.
+     * @return Optional que contiene el rescatista si se encuentra.
+     */
+    public Optional<Rescatista> buscarRescatistaPorId(String id) {
+        return rescatistaDAO.buscarPorId(id);
+    }
+
+    private boolean isValidTimeFormat(String time) {
+        try {
+            LocalTime.parse(time);
+            return true;
+        } catch (DateTimeParseException e) {
+            return false;
+        }
+    }
+
+    private boolean isValidDateFormat(String date) {
+        try {
+            String[] parts = date.split("-");
+            if (parts.length != 3) return false;
+            int day = Integer.parseInt(parts[0]);
+            int month = Integer.parseInt(parts[1]);
+            int year = Integer.parseInt(parts[2]);
+            return day >= 1 && day <= 31 && month >= 1 && month <= 12 && year > 1900; // Validación s
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
 }

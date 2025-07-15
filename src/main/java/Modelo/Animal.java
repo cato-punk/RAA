@@ -1,69 +1,56 @@
 package Modelo;
 
-import java.io.Serializable;
-import java.time.LocalDateTime;
-import java.util.UUID;
-
-public class Animal implements Serializable {
-
-    private String id;
-    private String especie;
+public class Animal {
+    private String id; // ID único del animal
     private String raza;
+    private String especie;
     private String sexo;
-    private String estadoSalud; // "disponible", "adoptado", "en_proceso_adopcion", "rescatado", etc.
-    private String lugarEncontrado;
-    private LocalDateTime fechaHoraRescate;
-    private int edadAproximadaAnios;
-    private String diagnostico;
-    private String idRescatista;
-    private String idAdoptante; // para el ID del adoptante
+    private String estadoSalud;
+    private String lugarEncuentro;
+    private String horaRescate; // Formato HH:MM
+    private String fechaRescate; // Formato DD-MM-AAAA
+    private String edadAproximada; // Dada por el rescatista
+    private String nombreRescatistaEncontro;
+    private String idRescatistaEncontro; // Visible solo para el veterinario
+    private EstadoAdopcion estadoAdopcion; // Enum: RESCATADO, EN_ADOPCION, ADOPTADO
+    private String veterinarioAtiendeId; // ID del veterinario que lo atiende
 
-    public Animal(String especie, String raza, String sexo, String estadoSalud,
-                  String lugarEncontrado, LocalDateTime fechaHoraRescate,
-                  int edadAproximadaAnios, String idRescatista) {
-        this.id = UUID.randomUUID().toString();
-        this.especie = especie;
-        this.raza = raza;
-        this.sexo = sexo;
-        this.estadoSalud = estadoSalud;
-        this.lugarEncontrado = lugarEncontrado;
-        this.fechaHoraRescate = fechaHoraRescate;
-        this.edadAproximadaAnios = edadAproximadaAnios;
-        this.diagnostico = "No diagnosticado";
-        this.idRescatista = idRescatista;
-        this.idAdoptante = null; // hasta que sea adoptado
+    // Enum para el estado de adopción
+    public enum EstadoAdopcion {
+        RESCATADO,
+        EN_ADOPCION,
+        ADOPTADO
     }
 
-    public Animal(String id, String especie, String raza, String sexo, String estadoSalud,
-                  String lugarEncontrado, LocalDateTime fechaHoraRescate,
-                  int edadAproximadaAnios, String diagnostico, String idRescatista, String idAdoptante) {
-        this.id = id;
-        this.especie = especie;
-        this.raza = raza;
-        this.sexo = sexo;
-        this.estadoSalud = estadoSalud;
-        this.lugarEncontrado = lugarEncontrado;
-        this.fechaHoraRescate = fechaHoraRescate;
-        this.edadAproximadaAnios = edadAproximadaAnios;
-        this.diagnostico = diagnostico;
-        this.idRescatista = idRescatista;
-        this.idAdoptante = idAdoptante;
-    }
-
+    // Constructor vacío requerido por Gson
     public Animal() {
-        // Constructor vacío
     }
 
+    public Animal(String id, String raza, String especie, String sexo, String estadoSalud, String lugarEncuentro,
+                  String horaRescate, String fechaRescate, String edadAproximada, String nombreRescatistaEncontro,
+                  String idRescatistaEncontro, EstadoAdopcion estadoAdopcion, String veterinarioAtiendeId) {
+        this.id = id;
+        this.raza = raza;
+        this.especie = especie;
+        this.sexo = sexo;
+        this.estadoSalud = estadoSalud;
+        this.lugarEncuentro = lugarEncuentro;
+        this.horaRescate = horaRescate;
+        this.fechaRescate = fechaRescate;
+        this.edadAproximada = edadAproximada;
+        this.nombreRescatistaEncontro = nombreRescatistaEncontro;
+        this.idRescatistaEncontro = idRescatistaEncontro;
+        this.estadoAdopcion = estadoAdopcion;
+        this.veterinarioAtiendeId = veterinarioAtiendeId;
+    }
+
+    // Getters y Setters
     public String getId() {
         return id;
     }
 
-    public String getEspecie() {
-        return especie;
-    }
-
-    public void setEspecie(String especie) {
-        this.especie = especie;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getRaza() {
@@ -72,6 +59,14 @@ public class Animal implements Serializable {
 
     public void setRaza(String raza) {
         this.raza = raza;
+    }
+
+    public String getEspecie() {
+        return especie;
+    }
+
+    public void setEspecie(String especie) {
+        this.especie = especie;
     }
 
     public String getSexo() {
@@ -90,68 +85,87 @@ public class Animal implements Serializable {
         this.estadoSalud = estadoSalud;
     }
 
-    public String getLugarEncontrado() {
-        return lugarEncontrado;
+    public String getLugarEncuentro() {
+        return lugarEncuentro;
     }
 
-    public void setLugarEncontrado(String lugarEncontrado) {
-        this.lugarEncontrado = lugarEncontrado;
+    public void setLugarEncuentro(String lugarEncuentro) {
+        this.lugarEncuentro = lugarEncuentro;
     }
 
-    public LocalDateTime getFechaHoraRescate() {
-        return fechaHoraRescate;
+    public String getHoraRescate() {
+        return horaRescate;
     }
 
-    public void setFechaHoraRescate(LocalDateTime fechaHoraRescate) {
-        this.fechaHoraRescate = fechaHoraRescate;
+    public void setHoraRescate(String horaRescate) {
+        this.horaRescate = horaRescate;
     }
 
-    public int getEdadAproximadaAnios() {
-        return edadAproximadaAnios;
+    public String getFechaRescate() {
+        return fechaRescate;
     }
 
-    public void setEdadAproximadaAnios(int edadAproximadaAnios) {
-        this.edadAproximadaAnios = edadAproximadaAnios;
+    public void setFechaRescate(String fechaRescate) {
+        this.fechaRescate = fechaRescate;
     }
 
-    public String getDiagnostico() {
-        return diagnostico;
+    public String getEdadAproximada() {
+        return edadAproximada;
     }
 
-    public void setDiagnostico(String diagnostico) {
-        this.diagnostico = diagnostico;
+    public void setEdadAproximada(String edadAproximada) {
+        this.edadAproximada = edadAproximada;
     }
 
-    public String getIdRescatista() {
-        return idRescatista;
+    public String getNombreRescatistaEncontro() {
+        return nombreRescatistaEncontro;
     }
 
-    public void setIdRescatista(String idRescatista) {
-        this.idRescatista = idRescatista;
+    public void setNombreRescatistaEncontro(String nombreRescatistaEncontro) {
+        this.nombreRescatistaEncontro = nombreRescatistaEncontro;
     }
 
-    public String getIdAdoptante() {
-        return idAdoptante;
+    public String getIdRescatistaEncontro() {
+        return idRescatistaEncontro;
     }
 
-    public void setIdAdoptante(String idAdoptante) {
-        this.idAdoptante = idAdoptante;
+    public void setIdRescatistaEncontro(String idRescatistaEncontro) {
+        this.idRescatistaEncontro = idRescatistaEncontro;
+    }
+
+    public EstadoAdopcion getEstadoAdopcion() {
+        return estadoAdopcion;
+    }
+
+    public void setEstadoAdopcion(EstadoAdopcion estadoAdopcion) {
+        this.estadoAdopcion = estadoAdopcion;
+    }
+
+    public String getVeterinarioAtiendeId() {
+        return veterinarioAtiendeId;
+    }
+
+    public void setVeterinarioAtiendeId(String veterinarioAtiendeId) {
+        this.veterinarioAtiendeId = veterinarioAtiendeId;
     }
 
     @Override
     public String toString() {
-        return "Animal {" +
+        return "Animal{" +
                 "ID='" + id + '\'' +
-                ", Especie='" + especie + '\'' +
                 ", Raza='" + raza + '\'' +
+                ", Especie='" + especie + '\'' +
                 ", Sexo='" + sexo + '\'' +
                 ", Estado Salud='" + estadoSalud + '\'' +
-                ", Lugar Encontrado='" + lugarEncontrado + '\'' +
-                ", Fecha/Hora Rescate=" + (fechaHoraRescate != null ? fechaHoraRescate.toLocalDate() + " " + fechaHoraRescate.toLocalTime() : "N/A") +
-                ", Edad Aprox.=" + edadAproximadaAnios + " años" +
-                ", Diagnostico='" + diagnostico + '\'' +
-                ", ID Rescatista='" + (idRescatista != null ? idRescatista : "N/A") + '\'' +
-                ", ID Adoptante='" + (idAdoptante != null ? idAdoptante : "N/A") + '\'' + // añadido
+                ", Lugar Encuentro='" + lugarEncuentro + '\'' +
+                ", Hora Rescate='" + horaRescate + '\'' +
+                ", Fecha Rescate='" + fechaRescate + '\'' +
+                ", Edad Aproximada='" + edadAproximada + '\'' +
+                ", Rescatista='" + nombreRescatistaEncontro + '\'' +
+                ", ID Rescatista='" + idRescatistaEncontro + '\'' +
+                ", Estado Adopcion=" + estadoAdopcion +
+                ", Veterinario Atiende ID='" + veterinarioAtiendeId + '\'' +
                 '}';
     }
 }
+

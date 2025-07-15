@@ -1,44 +1,29 @@
 package Modelo;
 
-import java.time.LocalDate;
-import org.json.JSONObject;
-import org.json.JSONException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Adoptante extends Persona {
-
     private String preferencias;
     private String informacionAdopcion;
+    private boolean permisoAdopcion; // true (Si) / false (No)
+    private List<String> animalesAdoptadosIds; // IDs de animales que ha adoptado
 
-
-    // constructor principal para crear un nuevo adoptante (sin contraseña)
-    public Adoptante(String nombre, String rut, LocalDate fechaNacimiento, String direccion,
-                     String numeroTelefono, String correoElectronico, String preferencias){
-                     super(nombre, rut, fechaNacimiento, direccion, numeroTelefono, correoElectronico);// no paramtero contraseña
-        this.preferencias = preferencias;
-        this.informacionAdopcion = "No especificada"; //por defecto
-        // this.contrasenaHash = BCrypt.hashpw(contrasenaPlana, BCrypt.gensalt()); // se va por ahora
+    public Adoptante() {
+        super();
+        this.permisoAdopcion = false; // Por defecto es NO
+        this.animalesAdoptadosIds = new ArrayList<>();
     }
 
-    // constructor para cargar desde JSON (sin contraseña hasheada)
-    public Adoptante(String id, String nombre, String rut, LocalDate fechaNacimiento, String direccion,
-                     String numeroTelefono, String correoElectronico, String preferencias,
-                     String informacionAdopcion) {
-        super(id, nombre, rut, fechaNacimiento, direccion, numeroTelefono, correoElectronico);
+    public Adoptante(String id, String nombre, String rut, String direccion, String numeroTelefono, String correoElectronico, String preferencias, String informacionAdopcion) {
+        super(id, nombre, rut, direccion, numeroTelefono, correoElectronico);
         this.preferencias = preferencias;
         this.informacionAdopcion = informacionAdopcion;
-        // this.contrasenaHash = contrasenaHash; //se va
-    }
-    // existente de 8 argumentos
-    public Adoptante(String nombre, String rut, LocalDate fechaNacimiento, String direccion,
-                     String numeroTelefono, String correoElectronico, String preferencias,
-                     String informacionAdopcion) {
-        super(nombre, rut, fechaNacimiento, direccion, numeroTelefono, correoElectronico);
-        this.preferencias = preferencias;
-        this.informacionAdopcion = informacionAdopcion;
+        this.permisoAdopcion = false; // Por defecto es NO
+        this.animalesAdoptadosIds = new ArrayList<>();
     }
 
-
-
+    // Getters y Setters
     public String getPreferencias() {
         return preferencias;
     }
@@ -55,58 +40,34 @@ public class Adoptante extends Persona {
         this.informacionAdopcion = informacionAdopcion;
     }
 
-    // public String getContrasenaHash() { return contrasenaHash; }
-    // public void setContrasenaHash(String contrasenaHash) { this.contrasenaHash = contrasenaHash; }
+    public boolean isPermisoAdopcion() {
+        return permisoAdopcion;
+    }
 
+    public void setPermisoAdopcion(boolean permisoAdopcion) {
+        this.permisoAdopcion = permisoAdopcion;
+    }
+
+    public List<String> getAnimalesAdoptadosIds() {
+        return animalesAdoptadosIds;
+    }
+
+    public void setAnimalesAdoptadosIds(List<String> animalesAdoptadosIds) {
+        this.animalesAdoptadosIds = animalesAdoptadosIds;
+    }
+
+    public void agregarAnimalAdoptadoId(String animalId) {
+        if (!this.animalesAdoptadosIds.contains(animalId)) {
+            this.animalesAdoptadosIds.add(animalId);
+        }
+    }
 
     @Override
     public String toString() {
-        return "Adoptante - ID: " + getId() + ", Nombre: " + getNombre() + ", RUT: " + getRut() +
-                ", Correo: " + getCorreoElectronico() + ", Preferencias: " + preferencias +
-                ", Info Adopción: " + informacionAdopcion;
-    }
-
-    @Override
-    public JSONObject toJSONObject() {
-        JSONObject jsonObject = new JSONObject();
-        try {
-            // Campos de Persona
-            jsonObject.put("id", getId());
-            jsonObject.put("nombre", getNombre());
-            jsonObject.put("rut", getRut());
-            jsonObject.put("fechaNacimiento", getFechaNacimiento().toString());
-            jsonObject.put("direccion", getDireccion());
-            jsonObject.put("numeroTelefono", getNumeroTelefono());
-            jsonObject.put("correoElectronico", getCorreoElectronico());
-            jsonObject.put("tipo", "adoptante"); // Identificador de tipo
-
-            // Campos específicos de Adoptante
-            jsonObject.put("preferencias", preferencias);
-            jsonObject.put("informacionAdopcion", informacionAdopcion);
-
-        } catch (org.json.JSONException e) {
-            System.err.println("Error al crear JSONObject de Adoptante: " + e.getMessage());
-        }
-        return jsonObject;
-    }
-
-    public static Adoptante fromJSONObject(JSONObject jsonObject) {
-        try {
-            String id = jsonObject.getString("id");
-            String nombre = jsonObject.getString("nombre");
-            String rut = jsonObject.getString("rut");
-            LocalDate fechaNacimiento = LocalDate.parse(jsonObject.getString("fechaNacimiento"));
-            String direccion = jsonObject.getString("direccion");
-            String numeroTelefono = jsonObject.getString("numeroTelefono");
-            String correoElectronico = jsonObject.getString("correoElectronico");
-            String preferencias = jsonObject.optString("preferencias", "");
-            String informacionAdopcion = jsonObject.optString("informacionAdopcion", "");
-
-            return new Adoptante(id, nombre, rut, fechaNacimiento, direccion,
-                    numeroTelefono, correoElectronico, preferencias, informacionAdopcion);
-        } catch (org.json.JSONException | java.time.format.DateTimeParseException e) {
-            System.err.println("Error al parsear JSONObject a Adoptante: " + e.getMessage());
-            return null;
-        }
+        return "Adoptante - " + super.toString() +
+                ", Preferencias: " + preferencias +
+                ", Info Adopcion: " + informacionAdopcion +
+                ", Permiso Adopcion: " + (permisoAdopcion ? "SI" : "NO") +
+                ", Animales Adoptados IDs: " + (animalesAdoptadosIds.isEmpty() ? "Ninguno" : animalesAdoptadosIds);
     }
 }

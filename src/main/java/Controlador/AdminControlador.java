@@ -1,115 +1,114 @@
 package Controlador;
 
-import Modelo.Admin;
-import Modelo.Persona;
-import Datos.PersonaDA;
+import Datos.*;
+import Modelo.*;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public class AdminControlador {
+    private AdminDAO adminDAO;
+    private VeterinarioDAO veterinarioDAO;
+    private AdoptanteDAO adoptanteDAO;
+    private RescatistaDAO rescatistaDAO;
+    private AnimalDAO animalDAO;
 
-    private PersonaDA personaDA;
-    private Admin adminActual;
-
-    public AdminControlador(PersonaDA personaDA) {
-        this.personaDA = personaDA;
+    public AdminControlador() {
+        this.adminDAO = new AdminDAO();
+        this.veterinarioDAO = new VeterinarioDAO();
+        this.adoptanteDAO = new AdoptanteDAO();
+        this.rescatistaDAO = new RescatistaDAO();
+        this.animalDAO = new AnimalDAO();
     }
 
-    //para registrar un nuevo administrador
-    public boolean registrarAdmin(String nombre, String rut, LocalDate fechaNacimiento,
-                                  String direccion, String numeroTelefono, String correoElectronico) {
-        if (personaDA.buscarPersonaPorCorreo(correoElectronico).isPresent()) {
-            System.out.println("Error: El correo electrónico ya está registrado.");
-            return false;
-        }
-        Admin nuevoAdmin = new Admin();
-        personaDA.guardarPersona(nuevoAdmin);
-        System.out.println("Administrador registrado exitosamente con ID: " + nuevoAdmin.getId());
-        return true;
-    }
-
-    //iniciar sesión de un Administrador
-    public boolean iniciarSesion(String correo) {
-        Optional<Persona> personaOptional = personaDA.buscarPersonaPorCorreo(correo);
-
-        if (personaOptional.isPresent()) {
-            Persona persona = personaOptional.get();
-            if (persona instanceof Admin) {
-                this.adminActual = (Admin) persona;
-                return true;
+    /**
+     * Intenta iniciar sesión como administrador.
+     * @param correoElectronico Correo del admin.
+     * @param id ID del admin.
+     * @param contrasena Contraseña del admin.
+     * @return El objeto Admin si las credenciales son correctas, o null en caso contrario.
+     */
+    public Admin iniciarSesion(String correoElectronico, String id, String contrasena) {
+        Optional<Admin> adminOptional = adminDAO.buscarPorId(id);
+        if (adminOptional.isPresent()) {
+            Admin admin = adminOptional.get();
+            if (admin.getCorreoElectronico().equals(correoElectronico) && admin.getContrasena().equals(contrasena)) {
+                return admin;
             }
         }
-        return false;
+        return null;
     }
 
-    public void cerrarSesion() {
-        this.adminActual = null;
-    }
+    /**
+     * Registra un nuevo veterinario en el sistema.
+     * Genera un ID único para el veterinario.
+     * @param nombre Nombre completo del veterinario.
+     * @param rut RUT del veterinario.
+     * @param direccion Dirección del veterinario.
+     * @param numeroTelefono Número de teléfono del veterinario.
+     * @param correoElectronico Correo electrónico del veterinario.
+     * @param especialidad Especialidad del veterinario.
+     * @param licencia Estado de la licencia (Activa/Inactiva).
+     * @return El ID generado para el nuevo veterinario, o null si ya existe un veterinario con el mismo correo/ID.
+     */
+    public String registrarVeterinario(String nombre, String rut, String direccion, String numeroTelefono,
+                                       String correoElectronico, String especialidad, String licencia) {
 
-    public Admin getAdminActual() {
-        return adminActual;
-    }
-
-    //buscar cualquier tipo de Persona por ID (para el admin)
-    public Persona buscarPersonaPorId(String id) {
-        // CORRECCIÓN: Manejar Optional<Persona> aquí (línea 81 en tu código)
-        Optional<Persona> personaOptional = personaDA.buscarPersonaPorId(id); // Esto devuelve Optional<Persona>
-        if (personaOptional.isPresent()) {
-            return personaOptional.get(); // Obtienes la Persona real del Optional
-        }
-        return null; // Si no se encuentra
-    }
-
-    // listar todos los administradores
-    public ArrayList<Admin> listarTodosAdmins() {
-        ArrayList<Admin> admins = new ArrayList<>();
-        for (Persona p : personaDA.cargarPersonas()) {
-            if (p instanceof Admin) {
-                admins.add((Admin) p);
-            }
-        }
-        return admins;
-    }
-
-    //  act datos de cualquier tipo de Persona (para el admin)
-    public boolean actualizarDatosUsuario(String id, String nombre, String rut, LocalDate fechaNacimiento,
-                                          String direccion, String numeroTelefono, String correoElectronico) {
-        if (adminActual == null) {
-            System.out.println("Error: Solo un administrador logueado puede actualizar usuarios.");
-            return false;
+        if (nombre.isEmpty() || rut.isEmpty() || correoElectronico.isEmpty()) {
+            return null;
         }
 
-        Optional<Persona> personaOptional = personaDA.buscarPersonaPorId(id); //devuelve Optional<Persona>
-        Persona personaAActualizar = null;
+        List<Veterinario> veterinarios = veterinarioDAO.cargarTodos();
+        boolean correoExistente = veterinarios.stream()
+                .anyMatch(v -> v.getCorreoElectronico().equalsIgnoreCase(correoElectronico));
+        if (correoExistente) {
+            return "CorreoExistente"; // Indicador de que el correo ya está registrado
+        }
 
-        if (personaOptional.isPresent()) {
-            personaAActualizar = personaOptional.get(); // al
+        String newId = IdGenerator.generateUniqueId();
+        Veterinario nuevoVeterinario = new Veterinario(newId, nombre, rut, direccion, numeroTelefono,
+                correoElectronico, especialidad, licencia);
+        if (veterinarioDAO.agregar(nuevoVeterinario)) {
+            return newId;
+        }
+        return null;
+    }
 
-            // Actualizar campos comunes
-            personaAActualizar.setNombre(nombre);
-            personaAActualizar.setRut(rut);
-            personaAActualizar.setFechaNacimiento(fechaNacimiento);
-            personaAActualizar.setDireccion(direccion);
-            personaAActualizar.setNumeroTelefono(numeroTelefono);
-            personaAActualizar.setCorreoElectronico(correoElectronico);
-
-
-            return personaDA.actualizarPersona(personaAActualizar);
-        } else {
-            System.out.println("Error: Usuario con ID " + id + " no encontrado para actualizar.");
-            return false;
+    /**
+     * Elimina una entidad del sistema por su ID y tipo.
+     * @param tipoEntidad El tipo de entidad a eliminar (animal, veterinario, adoptante, rescatista).
+     * @param id ID de la entidad a eliminar.
+     * @return true si se eliminó con éxito, false si no se encontró o el tipo es inválido.
+     */
+    public boolean eliminarEntidad(String tipoEntidad, String id) {
+        switch (tipoEntidad.toLowerCase()) {
+            case "animal":
+                return animalDAO.eliminar(id);
+            case "veterinario":
+                return veterinarioDAO.eliminar(id);
+            case "adoptante":
+                return adoptanteDAO.eliminar(id);
+            case "rescatista":
+                return rescatistaDAO.eliminar(id);
+            default:
+                return false; // Tipo de entidad no reconocido
         }
     }
 
-    //para eliminar cualquier tipo de Persona
-    public boolean eliminarUsuario(String id) {
-        if (adminActual == null) {
-            System.out.println("Error: Solo un administrador logueado puede eliminar usuarios.");
-            return false;
-        }
-        // Asumiendo que eliminarPersona en PersonaDA devuelve boolean y ya está corregido
-        return personaDA.eliminarPersona(id);
+    // Métodos para que el admin pueda ver listados completos (para la GUI)
+    public List<Adoptante> obtenerTodosAdoptantes() {
+        return adoptanteDAO.cargarTodos();
+    }
+
+    public List<Veterinario> obtenerTodosVeterinarios() {
+        return veterinarioDAO.cargarTodos();
+    }
+
+    public List<Animal> obtenerTodosAnimales() {
+        return animalDAO.cargarTodos();
+    }
+
+    public List<Rescatista> obtenerTodosRescatistas() {
+        return rescatistaDAO.cargarTodos();
     }
 }

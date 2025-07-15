@@ -1,134 +1,122 @@
 package Controlador;
 
+import Datos.AdoptanteDAO;
+import Datos.AnimalDAO;
 import Modelo.Adoptante;
 import Modelo.Animal;
-import Datos.PersonaDA;
-import Datos.AnimalDA;
-import Modelo.Persona;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.Optional; // ¡Importante para Optional!
 
 public class AdoptanteControlador {
+    private AdoptanteDAO adoptanteDAO;
+    private AnimalDAO animalDAO;
 
-    private PersonaDA personaDA;
-    private AnimalDA animalDA;
-    private Adoptante adoptanteActual; // sesión del adoptante
-
-    public AdoptanteControlador(PersonaDA personaDA, AnimalDA animalDA) {
-        this.personaDA = personaDA;
-        this.animalDA = animalDA;
+    public AdoptanteControlador() {
+        this.adoptanteDAO = new AdoptanteDAO();
+        this.animalDAO = new AnimalDAO();
     }
 
-    public Adoptante getAdoptanteActual() {
-        return adoptanteActual;
-    }
+    /**
+     * Registra un nuevo adoptante en el sistema.
+     * Genera un ID único para el adoptante.
+     * Por defecto, el permiso de adopción es NO.
+     * @param nombre Nombre completo del adoptante.
+     * @param rut RUT del adoptante.
+     * @param direccion Dirección del adoptante.
+     * @param numeroTelefono Número de teléfono del adoptante.
+     * @param correoElectronico Correo electrónico del adoptante.
+     * @param preferencias Preferencias de adopción.
+     * @param informacionAdopcion Información adicional para la adopción.
+     * @return El ID generado para el nuevo adoptante, o null si ya existe un adoptante con el mismo correo/ID.
+     */
+    public String registrarAdoptante(String nombre, String rut, String direccion, String numeroTelefono,
+                                     String correoElectronico, String preferencias, String informacionAdopcion) {
 
-    public boolean registrarAdoptante(String nombre, String rut, LocalDate fechaNacimiento,
-                                      String direccion, String numeroTelefono,
-                                      String correoElectronico, String preferencias) {
-        // Verifica si ya existe una persona con ese correo electrónico
-        if (personaDA.buscarPersonaPorCorreo(correoElectronico).isPresent()) {
-            System.out.println("Error: El correo electrónico ya está registrado.");
-            return false;
+        if (nombre.isEmpty() || rut.isEmpty() || correoElectronico.isEmpty()) {
+            return null;
         }
 
-        Adoptante nuevoAdoptante = new Adoptante(nombre, rut, fechaNacimiento, direccion, numeroTelefono, correoElectronico, preferencias);
-        personaDA.guardarPersona(nuevoAdoptante); // Usa guardarPersona para persistir el nuevo adoptante
-        System.out.println("Adoptante registrado exitosamente con ID: " + nuevoAdoptante.getId());
-        return true;
+        //si el correo ya está en uso
+        List<Adoptante> adoptantes = adoptanteDAO.cargarTodos();
+        boolean correoExistente = adoptantes.stream()
+                .anyMatch(a -> a.getCorreoElectronico().equalsIgnoreCase(correoElectronico));
+        if (correoExistente) {
+            return "CorreoExistente"; // Indicador
+        }
+
+        String newId = IdGenerator.generateUniqueId();
+        Adoptante nuevoAdoptante = new Adoptante(newId, nombre, rut, direccion, numeroTelefono,
+                correoElectronico, preferencias, informacionAdopcion);
+        // Por defecto, permisoAdopcion es false en el constructor
+        if (adoptanteDAO.agregar(nuevoAdoptante)) {
+            return newId;
+        }
+        return null;
     }
 
-    public boolean iniciarSesion(String correoElectronico) {
-        // Busca la persona por correo electrónico, que devuelve un Optional<Persona>
-        Optional<Persona> personaOptional = personaDA.buscarPersonaPorCorreo(correoElectronico);
-
-        // Verifica si el Optional contiene una persona
-        if (personaOptional.isPresent()) {
-            Persona persona = personaOptional.get(); // Obtiene la Persona del Optional
-            // Verifica si la persona encontrada es una instancia de Adoptante
-            if (persona instanceof Adoptante) {
-                this.adoptanteActual = (Adoptante) persona; // Castea y asigna a adoptanteActual
-                System.out.println("Sesión iniciada como Adoptante: " + adoptanteActual.getNombre());
-                return true;
-            } else {
-                System.out.println("Error: El correo electrónico corresponde a otro tipo de usuario.");
-                this.adoptanteActual = null;
-                return false;
+    /**
+     * Intenta iniciar sesión como adoptante.
+     * Verifica ID, correo y permiso de adopción.
+     * @param id ID del adoptante.
+     * @param correoElectronico Correo del adoptante.
+     * @return El objeto Adoptante si las credenciales son correctas y tiene permiso,
+     * "SinPermiso" si las credenciales son correctas pero no tiene permiso,
+     * o null si las credenciales son incorrectas.
+     */
+    public Adoptante iniciarSesion(String id, String correoElectronico) {
+        Optional<Adoptante> adoptanteOptional = adoptanteDAO.buscarPorId(id);
+        if (adoptanteOptional.isPresent()) {
+            Adoptante adoptante = adoptanteOptional.get();
+            if (adoptante.getCorreoElectronico().equals(correoElectronico)) {
+                if (adoptante.isPermisoAdopcion()) {
+                    return adoptante;
+                } else {
+                    return null; // Credenciales correctas pero sin permiso, indicará desde la GUI
+                }
             }
-        } else {
-            System.out.println("Error: Correo electrónico no encontrado.");
-            this.adoptanteActual = null;
-            return false;
         }
+        return null; // Credenciales incorrectas
     }
 
-    public void cerrarSesion() {
-        this.adoptanteActual = null;
-        System.out.println("Sesión de adoptante cerrada.");
-    }
-
-    // obtener animales disponibles para adopción
-    public List<Animal> obtenerAnimalesDisponibles() {
-        // Carga todos los animales y los filtra por estado "disponible"
-        // Asumo que cargarAnimales() en AnimalDA devuelve una List<Animal> o ArrayList<Animal>
-        return animalDA.cargarAnimales().stream()
-                .filter(animal -> "disponible".equalsIgnoreCase(animal.getEstadoSalud()))
+    /**
+     * Obtiene una lista de animales que están en estado "EN_ADOPCION".
+     * @return Lista de animales disponibles para adopción.
+     */
+    public List<Animal> obtenerAnimalesEnAdopcion() {
+        return animalDAO.cargarTodos().stream()
+                .filter(animal -> animal.getEstadoAdopcion() == Animal.EstadoAdopcion.EN_ADOPCION)
                 .collect(Collectors.toList());
     }
 
-    // para adoptar un animal
-    public boolean adoptarAnimal(String idAnimal) {
-        if (adoptanteActual == null) {
-            System.out.println("Debe iniciar sesión como adoptante para adoptar un animal.");
-            return false;
-        }
+    /**
+     * Permite a un adoptante adoptar un animal.
+     * Cambia el estado del animal a "ADOPTADO" y lo asocia al adoptante.
+     * @param adoptanteId ID del adoptante que adopta.
+     * @param animalId ID del animal a adoptar.
+     * @return true si la adopción fue exitosa, false en caso contrario (animal no encontrado, no en adopción, etc.).
+     */
+    public boolean adoptarAnimal(String adoptanteId, String animalId) {
+        Optional<Animal> animalOptional = animalDAO.buscarPorId(animalId);
+        Optional<Adoptante> adoptanteOptional = adoptanteDAO.buscarPorId(adoptanteId);
 
-        // Busca el animal por ID, que devuelve un Optional<Animal>
-        Optional<Animal> animalOptional = animalDA.buscarAnimalPorId(idAnimal);
+        if (animalOptional.isPresent() && adoptanteOptional.isPresent()) {
+            Animal animal = animalOptional.get();
+            Adoptante adoptante = adoptanteOptional.get();
 
-        // Verifica si el Optional contiene el animal
-        if (animalOptional.isPresent()) {
-            Animal animalAAdoptar = animalOptional.get(); // Obtiene el Animal del Optional
+            // Solo se puede adoptar si el animal está "EN_ADOPCION"
+            if (animal.getEstadoAdopcion() == Animal.EstadoAdopcion.EN_ADOPCION) {
+                animal.setEstadoAdopcion(Animal.EstadoAdopcion.ADOPTADO);
+                boolean animalActualizado = animalDAO.actualizar(animal);
 
-            // Verifica el estado de salud antes de la adopción
-            if (!"disponible".equalsIgnoreCase(animalAAdoptar.getEstadoSalud())) {
-                System.out.println("Error: El animal con ID " + idAnimal + " no está disponible para adopción (estado: " + animalAAdoptar.getEstadoSalud() + ").");
-                return false;
+                if (animalActualizado) {
+                    adoptante.agregarAnimalAdoptadoId(animal.getId());
+                    adoptanteDAO.actualizar(adoptante);
+                    return true;
+                }
             }
-
-            // Realiza los cambios para la adopción
-            animalAAdoptar.setEstadoSalud("adoptado");
-            animalAAdoptar.setIdAdoptante(adoptanteActual.getId()); // Asignar el ID del adoptante actual
-
-            try {
-                // Actualiza el animal en la persistencia (AnimalDA)
-                animalDA.actualizarAnimal(animalAAdoptar);
-                System.out.println("¡Felicidades! Has adoptado exitosamente a " + animalAAdoptar.getEspecie() + " (ID: " + idAnimal + ").");
-                return true;
-            } catch (RuntimeException e) {
-                System.err.println("Error al procesar la adopción: " + e.getMessage());
-                return false;
-            }
-        } else {
-            System.out.println("Error: Animal con ID " + idAnimal + " no encontrado.");
-            return false;
         }
-    }
-
-    // para obtener el historial de adopciones del adoptante actual
-    public List<Animal> obtenerHistorialAdopciones() {
-        if (adoptanteActual == null) {
-            System.out.println("Debe iniciar sesión como adoptante para ver su historial.");
-            return new ArrayList<>(); // Retorna una lista vacía si no hay sesión
-        }
-
-        // Carga todos los animales y los filtra por el ID del adoptante actual
-        return animalDA.cargarAnimales().stream()
-                .filter(animal -> adoptanteActual.getId().equals(animal.getIdAdoptante()))
-                .collect(Collectors.toList());
+        return false;
     }
 }
