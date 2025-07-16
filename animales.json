@@ -1,16 +1,17 @@
 [
   {
-    "id": "53f97eee-3de6-47f4-b367-7ad878e8d61f",
-    "raza": "Kiltro",
+    "id": "animal1",
+    "raza": "Labrador",
     "especie": "Perro",
-    "sexo": "Femenino",
-    "estadoSalud": "Cogea de la pata trasera derecha",
-    "lugarEncuentro": "Monte Verde Camino",
-    "horaRescate": "19:33",
-    "fechaRescate": "03-07-2025",
-    "edadAproximada": "2 años",
-    "nombreRescatistaEncontro": "Cato Punk",
-    "idRescatistaEncontro": "ba26d376-dccc-42f4-9ac0-391d0040494e",
-    "estadoAdopcion": "RESCATADO"
+    "sexo": "Macho",
+    "estadoSalud": "Sano",
+    "lugarEncuentro": "Parque Central",
+    "horaRescate": "10:30",
+    "fechaRescate": "15-07-2025",
+    "edadAproximada": "3 años",
+    "nombreRescatistaEncontro": "Pedro Rescatista",
+    "idRescatistaEncontro": "resc123",
+    "estadoAdopcion": "ADOPTADO",
+    "veterinarioAtiendeId": ""
   }
 ]

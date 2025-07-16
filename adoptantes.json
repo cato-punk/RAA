@@ -1,14 +1,16 @@
 [
   {
-    "preferencias": "Perros",
-    "informacionAdopcion": "Alergia a gatos",
-    "permisoAdopcion": false,
-    "animalesAdoptadosIds": [],
-    "id": "85f6f622-77bf-4f17-8eff-e9263c55e810",
-    "nombre": "Min Din",
-    "rut": "185486985",
-    "direccion": "Montevideo 87",
-    "numeroTelefono": "78584520",
-    "correoElectronico": "mdin@gmail.com"
+    "preferencias": "perros",
+    "informacionAdopcion": "casa",
+    "permisoAdopcion": true,
+    "animalesAdoptadosIds": [
+      "animal1"
+    ],
+    "id": "adoptante1",
+    "nombre": "Laura Perez",
+    "rut": "11.111.111-1",
+    "direccion": "Calle Falsa",
+    "numeroTelefono": "987654321",
+    "correoElectronico": "laura@email.com"
   }
 ]

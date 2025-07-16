@@ -44,11 +44,15 @@ public class AdminGUI extends JFrame {
         JTabbedPane tabbedPane = new JTabbedPane();
 
         // Pestaña 1: Registrar Veterinario
-        JPanel panelRegistrarVet = new JPanel(new GridLayout(8, 2, 10, 10));
+        // Pestaña 1: Registrar Veterinario
+        JPanel panelRegistrarVet = new JPanel(new GridLayout(10, 2, 10, 10)); // Cambiado de 8 a 10 filas
         panelRegistrarVet.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-        panelRegistrarVet.add(new JLabel("Registrar Nuevo Veterinario"));
-        panelRegistrarVet.add(new JLabel("")); // Espacio
 
+// Título de la sección
+        panelRegistrarVet.add(new JLabel("Registrar Nuevo Veterinario"));
+        panelRegistrarVet.add(new JLabel("")); // Espacio para el título
+
+// Campos de texto y etiquetas
         panelRegistrarVet.add(new JLabel("Nombre Completo:"));
         txtRegVetNombre = new JTextField();
         panelRegistrarVet.add(txtRegVetNombre);
@@ -77,9 +81,10 @@ public class AdminGUI extends JFrame {
         txtRegVetLicencia = new JTextField();
         panelRegistrarVet.add(txtRegVetLicencia);
 
+// Botón de registro
         btnRegVetRegistrar = new JButton("Registrar Veterinario");
         panelRegistrarVet.add(btnRegVetRegistrar);
-        panelRegistrarVet.add(new JLabel("")); // Espacio para el botón
+        panelRegistrarVet.add(new JLabel("")); // Espacio para que el botón no ocupe 2 columnas y quede alineado a la izquierda.
 
         tabbedPane.addTab("Registrar Veterinario", panelRegistrarVet);
 
