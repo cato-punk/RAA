@@ -1,0 +1,17 @@
+[
+  {
+    "id": "animal1",
+    "raza": "Labrador",
+    "especie": "Perro",
+    "sexo": "Macho",
+    "estadoSalud": "Sano",
+    "lugarEncuentro": "Parque Central",
+    "horaRescate": "10:30",
+    "fechaRescate": "15-07-2025",
+    "edadAproximada": "3 años",
+    "nombreRescatistaEncontro": "Pedro Rescatista",
+    "idRescatistaEncontro": "resc123",
+    "estadoAdopcion": "ADOPTADO",
+    "veterinarioAtiendeId": ""
+  }
+]

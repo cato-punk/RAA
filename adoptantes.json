@@ -1,0 +1,16 @@
+[
+  {
+    "preferencias": "perros",
+    "informacionAdopcion": "casa",
+    "permisoAdopcion": true,
+    "animalesAdoptadosIds": [
+      "animal1"
+    ],
+    "id": "adoptante1",
+    "nombre": "Laura Perez",
+    "rut": "11.111.111-1",
+    "direccion": "Calle Falsa",
+    "numeroTelefono": "987654321",
+    "correoElectronico": "laura@email.com"
+  }
+]

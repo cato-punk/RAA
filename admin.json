@@ -1,0 +1,19 @@
+[{
+  "id": "admin-001",
+  "nombre": "Administrador Principal",
+  "rut": "11.222.333-4",
+  "direccion": "Calle Falsa 123, Ciudad Admin",
+  "numeroTelefono": "912345678",
+  "correoElectronico": "admin@redayudaanimal.com",
+  "contrasena": "adminpass123"
+},
+  {
+    "id": "admin-002",
+    "nombre": "Segundo Administrador",
+    "rut": "22.333.444-5",
+    "direccion": "Avenida Siempre Viva 742, Otra Ciudad",
+    "numeroTelefono": "987654321",
+    "correoElectronico": "admin2@redayudaanimal.com",
+    "contrasena": "anotherpass"
+  }]
+
