@@ -1,0 +1,14 @@
+[
+  {
+    "preferencias": "Perros",
+    "informacionAdopcion": "Alergia a gatos",
+    "permisoAdopcion": false,
+    "animalesAdoptadosIds": [],
+    "id": "85f6f622-77bf-4f17-8eff-e9263c55e810",
+    "nombre": "Min Din",
+    "rut": "185486985",
+    "direccion": "Montevideo 87",
+    "numeroTelefono": "78584520",
+    "correoElectronico": "mdin@gmail.com"
+  }
+]

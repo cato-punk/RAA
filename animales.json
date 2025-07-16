@@ -1,0 +1,16 @@
+[
+  {
+    "id": "53f97eee-3de6-47f4-b367-7ad878e8d61f",
+    "raza": "Kiltro",
+    "especie": "Perro",
+    "sexo": "Femenino",
+    "estadoSalud": "Cogea de la pata trasera derecha",
+    "lugarEncuentro": "Monte Verde Camino",
+    "horaRescate": "19:33",
+    "fechaRescate": "03-07-2025",
+    "edadAproximada": "2 años",
+    "nombreRescatistaEncontro": "Cato Punk",
+    "idRescatistaEncontro": "ba26d376-dccc-42f4-9ac0-391d0040494e",
+    "estadoAdopcion": "RESCATADO"
+  }
+]
